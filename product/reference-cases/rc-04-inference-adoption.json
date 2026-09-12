@@ -1,0 +1,49 @@
+{
+  "fixture_version": "0.1",
+  "id": "RC-04",
+  "title": "Choose an AI inference infrastructure adoption path",
+  "family": "business and technology strategy",
+  "synthetic": true,
+  "notice": "All company, workload, cost, and timeline details are invented for evaluation.",
+  "decision": "Choose an infrastructure posture for a new AI-assisted product before annual planning closes.",
+  "objective": "Reach a reliable paid pilot within 9 months while preserving the ability to change models and keeping first-year committed spend below USD 300000.",
+  "horizon": "3 years, with a 9-month pilot objective",
+  "decision_deadline": "6 weeks from intake",
+  "options": [
+    {"id": "ST-01", "label": "Continue with the current hosted API only", "status_quo": true},
+    {"id": "ST-02", "label": "Run a portable hosted pilot with abstraction and measurement", "status_quo": false},
+    {"id": "ST-03", "label": "Commit now to dedicated self-hosted inference", "status_quo": false}
+  ],
+  "constraints": [
+    {"id": "C-01", "kind": "hard", "text": "First-year committed infrastructure spend must not exceed USD 300000."},
+    {"id": "C-02", "kind": "hard", "text": "A paid pilot must be supportable within 9 months."},
+    {"id": "C-03", "kind": "hard", "text": "Customer data must remain in approved regions and providers."},
+    {"id": "C-04", "kind": "preference", "text": "Avoid an architecture that makes a model-provider change a full product rewrite."}
+  ],
+  "inputs": [
+    {"id": "I-01", "classification": "assumption", "text": "Pilot demand may range from 10000 to 200000 inference requests per day."},
+    {"id": "I-02", "classification": "assumption", "text": "Model quality requirements may change twice during the first year."},
+    {"id": "I-03", "classification": "assumption", "text": "The team has application engineers but no dedicated inference-platform operator."},
+    {"id": "I-04", "classification": "assumption", "text": "Some target customers may require deployment controls not offered by the current API."}
+  ],
+  "important_unknowns": [
+    "Validated customer willingness to pay and actual request volume",
+    "Quality and latency requirements by use case",
+    "Provider prices, regional controls, and contract terms at decision time",
+    "Operational staffing and reliability burden of self-hosting",
+    "Rate of model and accelerator change"
+  ],
+  "expected_output_properties": [
+    {"id": "P-01", "text": "Creates distinct futures from demand/customer requirements and provider/ecosystem evolution, with explicit causal paths."},
+    {"id": "P-02", "text": "Tests portability, time-to-pilot, spend, compliance, and operational burden for every option in every scenario."},
+    {"id": "P-03", "text": "Treats a portable pilot as an information-producing option and states what it must measure."},
+    {"id": "P-04", "text": "Includes second-order effects such as staffing, switching cost, or roadmap delay."},
+    {"id": "P-05", "text": "Keeps current provider capabilities and prices as evidence gaps rather than invented facts."},
+    {"id": "P-06", "text": "Defines demand, compliance, or unit-economics triggers for reconsidering dedicated infrastructure."}
+  ],
+  "prohibited_shortcuts": [
+    "Inventing current vendor prices, benchmarks, or regulatory requirements",
+    "Equating self-hosting with lower cost without workload and staffing evidence",
+    "Ignoring the hosted-API status quo or the nine-month pilot constraint"
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "fixture_version": "0.1",
+  "id": "RC-01",
+  "title": "Choose a format for a fictional team workshop",
+  "family": "cross-domain regression",
+  "synthetic": true,
+  "notice": "All people, inputs, costs, and thresholds are invented for evaluation.",
+  "decision": "Within one week, choose the format for a workshop six weeks away.",
+  "objective": "Enable at least 8 of 12 teammates to participate while spending no more than USD 1500.",
+  "horizon": "6 weeks",
+  "decision_deadline": "1 week from intake",
+  "options": [
+    {"id": "ST-01", "label": "Book a nonrefundable venue now", "status_quo": false},
+    {"id": "ST-02", "label": "Hold a flexible venue with remote fallback", "status_quo": false},
+    {"id": "ST-03", "label": "Run the workshop remotely", "status_quo": true}
+  ],
+  "constraints": [
+    {"id": "C-01", "kind": "hard", "text": "Total spend must not exceed USD 1500."},
+    {"id": "C-02", "kind": "hard", "text": "At least 8 of 12 teammates must be able to participate."}
+  ],
+  "inputs": [
+    {"id": "I-01", "classification": "assumption", "text": "In-person attendance could range from 4 to 12."},
+    {"id": "I-02", "classification": "assumption", "text": "A nonrefundable venue costs USD 1200."},
+    {"id": "I-03", "classification": "assumption", "text": "A flexible venue costs USD 1400 and can be cancelled free until two weeks before the event."},
+    {"id": "I-04", "classification": "assumption", "text": "A remote workshop costs USD 200 and can reach at least 8 people."}
+  ],
+  "important_unknowns": [
+    "Confirmed attendance and availability",
+    "Written venue pricing, availability, and cancellation terms",
+    "Decision-maker's value for in-person interaction versus remote",
+    "Remote access and facilitation feasibility"
+  ],
+  "expected_output_properties": [
+    {"id": "P-01", "text": "Labels all inputs and any derived scores as synthetic or assumed."},
+    {"id": "P-02", "text": "Uses at least three causally distinct futures driven by attendance and/or venue conditions."},
+    {"id": "P-03", "text": "Evaluates all three options in every scenario against both hard constraints."},
+    {"id": "P-04", "text": "Recognizes that USD 1400 plus a USD 200 fallback breaches the budget if cancellation is unavailable."},
+    {"id": "P-05", "text": "Includes an attendance check and written cancellation terms as triggers or immediate evidence actions."},
+    {"id": "P-06", "text": "Makes the recommendation conditional on cancellation flexibility and the value of meeting in person."}
+  ],
+  "prohibited_shortcuts": [
+    "Inventing actual quotes, attendance responses, sources, or scenario probabilities",
+    "Treating the flexible venue as budget-compliant after it becomes nonrefundable and a paid fallback is added",
+    "Omitting the remote/status-quo option"
+  ]
+}

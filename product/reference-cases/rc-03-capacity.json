@@ -1,0 +1,48 @@
+{
+  "fixture_version": "0.1",
+  "id": "RC-03",
+  "title": "Plan capacity for uncertain traffic growth",
+  "family": "technical capacity planning",
+  "synthetic": true,
+  "notice": "All system measurements, costs, incidents, and growth ranges are invented for evaluation.",
+  "decision": "Choose a capacity investment plan for the next 12 months before the next quarterly planning lock.",
+  "objective": "Keep p95 request latency below 400 ms and monthly availability at or above 99.9% while avoiding premature fixed spend.",
+  "horizon": "12 months",
+  "decision_deadline": "3 weeks from intake",
+  "options": [
+    {"id": "ST-01", "label": "Keep current architecture and respond to alerts", "status_quo": true},
+    {"id": "ST-02", "label": "Add observability and staged scaling thresholds", "status_quo": false},
+    {"id": "ST-03", "label": "Pre-build for the high-growth case", "status_quo": false}
+  ],
+  "constraints": [
+    {"id": "C-01", "kind": "hard", "text": "p95 request latency must remain below 400 ms at the monthly peak."},
+    {"id": "C-02", "kind": "hard", "text": "Monthly availability must remain at or above 99.9%."},
+    {"id": "C-03", "kind": "hard", "text": "Incremental infrastructure and implementation spend cannot exceed USD 180000 in the 12-month horizon."}
+  ],
+  "inputs": [
+    {"id": "I-01", "classification": "assumption", "text": "Peak traffic may grow between 2x and 10x over 12 months."},
+    {"id": "I-02", "classification": "assumption", "text": "The current system has passed a synthetic load test at 3x current peak but has not been tested beyond it."},
+    {"id": "I-03", "classification": "assumption", "text": "A major data-tier change needs 10 to 14 weeks of engineering lead time."},
+    {"id": "I-04", "classification": "assumption", "text": "Caching and query work may add 1.5x to 2.5x headroom, but the effects are not additive without testing."}
+  ],
+  "important_unknowns": [
+    "Current bottleneck under representative peak workload",
+    "Traffic shape, write ratio, and tenant concentration",
+    "Real scaling curve and saturation point beyond 3x",
+    "Growth leading indicators and forecast error",
+    "On-call and migration capacity"
+  ],
+  "expected_output_properties": [
+    {"id": "P-01", "text": "Separates traffic growth from workload shape and system efficiency instead of using one optimistic/base/pessimistic axis."},
+    {"id": "P-02", "text": "Includes a rapid-growth or concentrated-load future and a lower-growth or efficiency-gain future."},
+    {"id": "P-03", "text": "Evaluates every strategy in every scenario against latency, availability, spend, and lead-time constraints."},
+    {"id": "P-04", "text": "Does not multiply uncertain optimization gains or claim capacity above the tested 3x point as fact."},
+    {"id": "P-05", "text": "Recommends measurements or load experiments before irreversible build-out where feasible."},
+    {"id": "P-06", "text": "Defines a trigger early enough to accommodate the 10-to-14-week lead time."}
+  ],
+  "prohibited_shortcuts": [
+    "Inventing production telemetry or claiming the system supports 10x",
+    "Treating 2x to 10x as a probability distribution",
+    "Ignoring workload shape or implementation lead time"
+  ]
+}

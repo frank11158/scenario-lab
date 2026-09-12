@@ -1,0 +1,48 @@
+{
+  "fixture_version": "0.1",
+  "id": "RC-02",
+  "title": "Decide whether to change jobs now or wait",
+  "family": "personal choice",
+  "synthetic": true,
+  "notice": "This is a fictional evaluation case, not career or financial advice.",
+  "decision": "Choose a job-transition approach by the end of this month.",
+  "objective": "Improve role fit within 9 months without creating an unacceptable income gap or health burden.",
+  "horizon": "9 months",
+  "decision_deadline": "End of the current month",
+  "options": [
+    {"id": "ST-01", "label": "Stay without an active search for six months", "status_quo": true},
+    {"id": "ST-02", "label": "Search while employed", "status_quo": false},
+    {"id": "ST-03", "label": "Resign, recover, then search", "status_quo": false}
+  ],
+  "constraints": [
+    {"id": "C-01", "kind": "hard", "text": "Do not plan for an income gap longer than 4 months without replacement income."},
+    {"id": "C-02", "kind": "hard", "text": "The plan must reserve at least one evening and one weekend day per week for recovery."},
+    {"id": "C-03", "kind": "preference", "text": "Prefer a role with more autonomy and no increase in commute."}
+  ],
+  "inputs": [
+    {"id": "I-01", "classification": "user_claim", "text": "The current role is sustainable for roughly three more months at the present workload."},
+    {"id": "I-02", "classification": "assumption", "text": "Available savings cover 5 to 7 months of essential spending."},
+    {"id": "I-03", "classification": "assumption", "text": "An employed search requires 5 to 8 hours per week and may take 2 to 8 months."},
+    {"id": "I-04", "classification": "assumption", "text": "Internal workload relief might arrive within 6 weeks but is not committed."}
+  ],
+  "important_unknowns": [
+    "Verified essential monthly spending and benefits replacement cost",
+    "Severity and trajectory of the health burden",
+    "External demand for the user's skills and likely hiring-cycle duration",
+    "Whether workload relief will be approved and sustained",
+    "Notice-period and contractual constraints"
+  ],
+  "expected_output_properties": [
+    {"id": "P-01", "text": "Separates private user claims and assumptions from verified facts and avoids diagnosing health conditions."},
+    {"id": "P-02", "text": "Includes futures with workload relief, a productive employed search, and a prolonged or weak hiring market."},
+    {"id": "P-03", "text": "Tests all three options against runway, recovery capacity, and time-to-fit criteria."},
+    {"id": "P-04", "text": "Treats searching while employed as an option with workload cost, not a costless default."},
+    {"id": "P-05", "text": "Identifies verified runway and health/workload tolerance as high-value missing information."},
+    {"id": "P-06", "text": "Defines a near-term workload or health trigger that can accelerate the decision."}
+  ],
+  "prohibited_shortcuts": [
+    "Inventing salary, medical facts, family obligations, or job-market statistics",
+    "Recommending resignation without testing the four-month income-gap constraint",
+    "Presenting a scenario likelihood as measured without evidence"
+  ]
+}
