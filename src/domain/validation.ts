@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { StudySchema, type Study } from "./schema.js";
+import { STUDY_SCHEMA_VERSION, StudyRevisionSchema, StudySchema, type Study, type StudyRevision } from "./schema.js";
 
 export type ValidationIssue = {
   path: string;
@@ -31,6 +31,8 @@ function uniqueIds(study: Study, issues: ValidationIssue[]): void {
     ["objective.id", study.objective.id],
     ...study.constraints.map((x, i) => [`constraints.${i}.id`, x.id] as [string, string]),
     ...study.evidence.map((x, i) => [`evidence.${i}.id`, x.id] as [string, string]),
+    ...study.research.contradictions.map((x, i) => [`research.contradictions.${i}.id`, x.id] as [string, string]),
+    ...study.research.unavailableSources.map((x, i) => [`research.unavailableSources.${i}.id`, x.id] as [string, string]),
     ...study.assumptions.map((x, i) => [`assumptions.${i}.id`, x.id] as [string, string]),
     ...study.drivers.map((x, i) => [`drivers.${i}.id`, x.id] as [string, string]),
     ...study.scenarios.map((x, i) => [`scenarios.${i}.id`, x.id] as [string, string]),
@@ -71,6 +73,16 @@ function checkReferences(study: Study, issues: ValidationIssue[]): void {
   };
 
   study.constraints.forEach((x, i) => refs(`constraints.${i}.sourceEvidenceIds`, x.sourceEvidenceIds, evidence, "evidence"));
+  study.research.contradictions.forEach((x, i) => {
+    refs(`research.contradictions.${i}.leftEvidenceId`, [x.leftEvidenceId], evidence, "evidence");
+    refs(`research.contradictions.${i}.rightEvidenceId`, [x.rightEvidenceId], evidence, "evidence");
+    if (x.leftEvidenceId === x.rightEvidenceId) {
+      issues.push({ path: `research.contradictions.${i}`, code: "self_contradiction", message: "A contradiction must link two different evidence records" });
+    }
+  });
+  study.research.unavailableSources.forEach((x, i) => {
+    if (x.evidenceId) refs(`research.unavailableSources.${i}.evidenceId`, [x.evidenceId], evidence, "evidence");
+  });
   study.assumptions.forEach((x, i) => refs(`assumptions.${i}.evidenceIds`, x.evidenceIds, evidence, "evidence"));
   study.drivers.forEach((x, i) => {
     refs(`drivers.${i}.evidenceIds`, x.evidenceIds, evidence, "evidence");
@@ -116,6 +128,21 @@ function checkProbability(study: Study, issues: ValidationIssue[]): void {
   }
 }
 
+function checkResearch(study: Study, issues: ValidationIssue[]): void {
+  study.evidence.forEach((item, index) => {
+    if (!item.citation) return;
+    if (item.type !== "sourced_fact") issues.push({ path: `evidence.${index}.type`, code: "citation_requires_sourced_fact", message: "Evidence with a retrieved citation must be classified as a sourced fact" });
+    if (item.source.status !== "known" || item.source.value !== item.citation.locator) issues.push({ path: `evidence.${index}.source`, code: "citation_source_mismatch", message: "Evidence source must match its citation locator" });
+    if (item.retrievedAt.status !== "known" || item.retrievedAt.value !== item.citation.retrievedAt) issues.push({ path: `evidence.${index}.retrievedAt`, code: "citation_retrieval_mismatch", message: "Evidence retrieval date must match its citation snapshot" });
+  });
+  const contradictionPairs = new Set<string>();
+  study.research.contradictions.forEach((item, index) => {
+    const pair = [item.leftEvidenceId, item.rightEvidenceId].sort().join(":");
+    if (contradictionPairs.has(pair)) issues.push({ path: `research.contradictions.${index}`, code: "duplicate_contradiction", message: "The evidence pair already has a contradiction record" });
+    contradictionPairs.add(pair);
+  });
+}
+
 function checkStrategyCoverage(study: Study, issues: ValidationIssue[]): void {
   if (study.scenarios.length === 0) return;
   const pairs = new Set<string>();
@@ -139,6 +166,7 @@ function checkStudyInvariants(study: Study, requireCompleteStrategyCoverage: boo
   const issues: ValidationIssue[] = [];
   uniqueIds(study, issues);
   checkReferences(study, issues);
+  checkResearch(study, issues);
   checkProbability(study, issues);
   if (requireCompleteStrategyCoverage) checkStrategyCoverage(study, issues);
   if (!study.strategies.some((strategy) => strategy.statusQuo)) {
@@ -154,11 +182,27 @@ function checkStudyInvariants(study: Study, requireCompleteStrategyCoverage: boo
 }
 
 function validate(input: unknown, requireCompleteStrategyCoverage: boolean): Study {
-  const parsed = StudySchema.safeParse(input);
+  const parsed = StudySchema.safeParse(migrateStudyInput(input));
   if (!parsed.success) throw new StudyValidationError(zodIssues(parsed.error));
   const issues = checkStudyInvariants(parsed.data, requireCompleteStrategyCoverage);
   if (issues.length > 0) throw new StudyValidationError(issues);
   return parsed.data;
+}
+
+/** Additive migration for M1–M3 study payloads stored before research metadata existed. */
+export function migrateStudyInput(input: unknown): unknown {
+  if (!input || typeof input !== "object" || Array.isArray(input)) return input;
+  const record = input as Record<string, unknown>;
+  if (record.schemaVersion !== "1.0.0") return input;
+  return { ...record, schemaVersion: STUDY_SCHEMA_VERSION };
+}
+
+export function validateStudyRevision(input: unknown): StudyRevision {
+  if (!input || typeof input !== "object" || Array.isArray(input)) return StudyRevisionSchema.parse(input);
+  const record = input as Record<string, unknown>;
+  return StudyRevisionSchema.parse(record.schemaVersion === "1.0.0"
+    ? { ...record, schemaVersion: STUDY_SCHEMA_VERSION }
+    : record);
 }
 
 export function validateStudy(input: unknown): Study {

@@ -106,8 +106,14 @@ function buildReferenceStudy(fixture: ReferenceFixture, options: ImportFixtureOp
       observedAt: unknown("No observation date supplied"),
       retrievedAt: unknown("Not retrieved"),
       limitations: ["Synthetic user claim; not independently verified"],
+      support: { status: "unreviewed" as const, rationale: unknown("Synthetic claim has no supporting source") },
       authorship: "imported" as const
     })),
+    research: {
+      contradictions: [],
+      unavailableSources: [],
+      lastReviewedAt: unknown("Evidence has not been reviewed")
+    },
     assumptions: fixture.inputs.filter((item) => item.classification === "assumption").map((item) => ({
       id: sourceId("assumption", item.id),
       statement: item.text,

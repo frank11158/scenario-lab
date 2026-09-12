@@ -6,7 +6,7 @@
       "properties": {
         "schemaVersion": {
           "type": "string",
-          "const": "1.0.0"
+          "const": "1.1.0"
         },
         "id": {
           "type": "string",
@@ -351,6 +351,202 @@
                 },
                 "default": []
               },
+              "citation": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "enum": [
+                      "web",
+                      "document"
+                    ]
+                  },
+                  "locator": {
+                    "$ref": "#/definitions/ScenarioLabStudy/properties/title"
+                  },
+                  "title": {
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "status": {
+                            "type": "string",
+                            "const": "known"
+                          },
+                          "value": {
+                            "$ref": "#/definitions/ScenarioLabStudy/properties/title"
+                          }
+                        },
+                        "required": [
+                          "status",
+                          "value"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "$ref": "#/definitions/ScenarioLabStudy/properties/problem/properties/decisionMaker/anyOf/1"
+                      }
+                    ]
+                  },
+                  "publisher": {
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "status": {
+                            "type": "string",
+                            "const": "known"
+                          },
+                          "value": {
+                            "$ref": "#/definitions/ScenarioLabStudy/properties/title"
+                          }
+                        },
+                        "required": [
+                          "status",
+                          "value"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "$ref": "#/definitions/ScenarioLabStudy/properties/problem/properties/decisionMaker/anyOf/1"
+                      }
+                    ]
+                  },
+                  "publishedAt": {
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "status": {
+                            "type": "string",
+                            "const": "known"
+                          },
+                          "value": {
+                            "$ref": "#/definitions/ScenarioLabStudy/properties/createdAt"
+                          }
+                        },
+                        "required": [
+                          "status",
+                          "value"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "$ref": "#/definitions/ScenarioLabStudy/properties/problem/properties/decisionMaker/anyOf/1"
+                      }
+                    ]
+                  },
+                  "retrievedAt": {
+                    "$ref": "#/definitions/ScenarioLabStudy/properties/createdAt"
+                  },
+                  "excerpt": {
+                    "type": "string",
+                    "minLength": 1,
+                    "errorMessage": {
+                      "minLength": "must not be empty"
+                    },
+                    "maxLength": 2000
+                  },
+                  "contentHash": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$"
+                  },
+                  "freshness": {
+                    "type": "object",
+                    "properties": {
+                      "status": {
+                        "type": "string",
+                        "enum": [
+                          "current",
+                          "aging",
+                          "stale",
+                          "unknown"
+                        ]
+                      },
+                      "asOf": {
+                        "$ref": "#/definitions/ScenarioLabStudy/properties/createdAt"
+                      },
+                      "basis": {
+                        "$ref": "#/definitions/ScenarioLabStudy/properties/title"
+                      }
+                    },
+                    "required": [
+                      "status",
+                      "asOf",
+                      "basis"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "untrustedContent": {
+                    "type": "boolean",
+                    "const": true
+                  }
+                },
+                "required": [
+                  "kind",
+                  "locator",
+                  "title",
+                  "publisher",
+                  "publishedAt",
+                  "retrievedAt",
+                  "excerpt",
+                  "contentHash",
+                  "freshness",
+                  "untrustedContent"
+                ],
+                "additionalProperties": false
+              },
+              "support": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "unreviewed",
+                      "supports",
+                      "partially_supports",
+                      "contradicts",
+                      "unsupported"
+                    ]
+                  },
+                  "rationale": {
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "status": {
+                            "type": "string",
+                            "const": "known"
+                          },
+                          "value": {
+                            "$ref": "#/definitions/ScenarioLabStudy/properties/title"
+                          }
+                        },
+                        "required": [
+                          "status",
+                          "value"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "$ref": "#/definitions/ScenarioLabStudy/properties/problem/properties/decisionMaker/anyOf/1"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "status",
+                  "rationale"
+                ],
+                "additionalProperties": false,
+                "default": {
+                  "status": "unreviewed",
+                  "rationale": {
+                    "status": "unknown",
+                    "note": "A reviewer has not assessed whether the source supports the claim"
+                  }
+                }
+              },
               "authorship": {
                 "$ref": "#/definitions/ScenarioLabStudy/properties/problem/properties/authorship"
               }
@@ -365,6 +561,160 @@
               "authorship"
             ],
             "additionalProperties": false
+          }
+        },
+        "research": {
+          "type": "object",
+          "properties": {
+            "contradictions": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "$ref": "#/definitions/ScenarioLabStudy/properties/id"
+                  },
+                  "leftEvidenceId": {
+                    "$ref": "#/definitions/ScenarioLabStudy/properties/id"
+                  },
+                  "rightEvidenceId": {
+                    "$ref": "#/definitions/ScenarioLabStudy/properties/id"
+                  },
+                  "description": {
+                    "$ref": "#/definitions/ScenarioLabStudy/properties/title"
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "open",
+                      "resolved"
+                    ]
+                  },
+                  "resolution": {
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "status": {
+                            "type": "string",
+                            "const": "known"
+                          },
+                          "value": {
+                            "$ref": "#/definitions/ScenarioLabStudy/properties/title"
+                          }
+                        },
+                        "required": [
+                          "status",
+                          "value"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "$ref": "#/definitions/ScenarioLabStudy/properties/problem/properties/decisionMaker/anyOf/1"
+                      }
+                    ]
+                  },
+                  "detectedAt": {
+                    "$ref": "#/definitions/ScenarioLabStudy/properties/createdAt"
+                  },
+                  "detectedBy": {
+                    "type": "string",
+                    "enum": [
+                      "heuristic",
+                      "model",
+                      "user"
+                    ]
+                  }
+                },
+                "required": [
+                  "id",
+                  "leftEvidenceId",
+                  "rightEvidenceId",
+                  "description",
+                  "status",
+                  "resolution",
+                  "detectedAt",
+                  "detectedBy"
+                ],
+                "additionalProperties": false
+              },
+              "default": []
+            },
+            "unavailableSources": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "$ref": "#/definitions/ScenarioLabStudy/properties/id"
+                  },
+                  "evidenceId": {
+                    "$ref": "#/definitions/ScenarioLabStudy/properties/id"
+                  },
+                  "kind": {
+                    "type": "string",
+                    "enum": [
+                      "web",
+                      "document"
+                    ]
+                  },
+                  "locator": {
+                    "$ref": "#/definitions/ScenarioLabStudy/properties/title"
+                  },
+                  "reason": {
+                    "$ref": "#/definitions/ScenarioLabStudy/properties/title"
+                  },
+                  "checkedAt": {
+                    "$ref": "#/definitions/ScenarioLabStudy/properties/createdAt"
+                  }
+                },
+                "required": [
+                  "id",
+                  "kind",
+                  "locator",
+                  "reason",
+                  "checkedAt"
+                ],
+                "additionalProperties": false
+              },
+              "default": []
+            },
+            "lastReviewedAt": {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "const": "known"
+                    },
+                    "value": {
+                      "$ref": "#/definitions/ScenarioLabStudy/properties/createdAt"
+                    }
+                  },
+                  "required": [
+                    "status",
+                    "value"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "$ref": "#/definitions/ScenarioLabStudy/properties/problem/properties/decisionMaker/anyOf/1"
+                }
+              ]
+            }
+          },
+          "required": [
+            "lastReviewedAt"
+          ],
+          "additionalProperties": false,
+          "default": {
+            "contradictions": [],
+            "unavailableSources": [],
+            "lastReviewedAt": {
+              "status": "unknown",
+              "note": "Evidence has not been reviewed"
+            }
           }
         },
         "assumptions": {
@@ -1147,6 +1497,6 @@
     }
   },
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://scenariolab.local/schema/study-1.0.0.json",
+  "$id": "https://scenariolab.local/schema/study-1.1.0.json",
   "$comment": "Structural schema. Cross-entity references, strategy coverage, synthetic labels, and probability coverage are enforced by validateStudy()."
 }

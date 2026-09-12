@@ -40,6 +40,7 @@ is available when you want to prepare the context yourself.
 | [M1 foundation](product/m1-acceptance.md) | Versioned model, validation, SQLite persistence, revisions, imports, and exports |
 | [M2 pipeline](product/m2-acceptance.md) | Resumable validated generation, model adapter, retries, usage, and staleness |
 | [M3 workbench](product/m3-acceptance.md) | Complete browser workflow, local API, history, model-failure recovery, and exports |
+| [M4 research](product/m4-acceptance.md) | Bounded source retrieval, claim citations, evidence review, and refresh revisions |
 
 Each study produces a readable decision brief, scenario comparison, strategy
 assessment, and action plan, with an evidence register and update history.
@@ -55,10 +56,11 @@ ScenarioLab can still be used as a document-based Codex workspace with no
 application server. It now also includes a local browser workbench. AI generation
 is enabled when `OPENAI_API_KEY` and `OPENAI_MODEL` are supplied; manual creation,
 editing, persistence, revision history, and export remain available without them.
-It does not include autonomous forecasting, live research, or scheduled monitoring.
+It does not include autonomous forecasting, quantitative simulation, or scheduled monitoring.
 
-Product development has completed Milestones 0 through 3. The reviewable baselines
-live in [`product/`](product/); M3 is the complete local-first MVP.
+Product development has completed Milestones 0 through 4. The reviewable baselines
+live in [`product/`](product/); M4 adds deliberately bounded research to the
+local-first MVP.
 
 Scenarios explore plausible futures; they are not predictions. Probabilities
 are optional. A study should help you identify choices that hold up across futures
@@ -86,9 +88,25 @@ Then open `http://127.0.0.1:4174`. To enable generation, set
 stored in `scenario-lab.sqlite`; set `SCENARIOLAB_DB_PATH` to choose another
 local path.
 
+Research is disabled until its boundaries are configured. Local documents are
+limited to UTF-8 Markdown and text files beneath one root; web retrieval is
+limited to exact HTTPS hosts:
+
+```sh
+SCENARIOLAB_DOCUMENT_ROOT=/absolute/path/to/research \
+SCENARIOLAB_RESEARCH_HOSTS=example.com,research.example.org \
+npm start
+```
+
+Use the narrowest practical host list. ScenarioLab rejects redirects, nonstandard
+ports, embedded credentials, private/special DNS results, path traversal, other
+file formats, invalid UTF-8, and sources above 1 MB. Retrieved excerpts are stored
+and shown as untrusted data. A reviewer must preview and classify support before
+applying an evidence update.
+
 The public TypeScript entry point is `src/index.ts`. It exports the versioned Zod
 study contracts, relationship validation, study-draft factory, reference-case
 importer, deterministic Markdown/JSON exporters, SQLite database and repository,
-revision service, and resumable planning pipeline. Generated JSON Schemas are in
+revision service, resumable planning pipeline, and bounded research service. Generated JSON Schemas are in
 [`schema/`](schema/). The React/Vite client is in [`web/`](web/) and the local
 HTTP application boundary is in [`src/server/`](src/server/).

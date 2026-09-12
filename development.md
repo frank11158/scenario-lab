@@ -1,6 +1,6 @@
 # ScenarioLab development roadmap
 
-Status: Active roadmap; M0–M3 completed 2026-09-11.
+Status: Active roadmap; M0–M3 completed 2026-09-11; M4 completed 2026-09-12.
 
 ## Product goal
 
@@ -25,7 +25,8 @@ At roadmap approval, the repository contained project instructions, templates,
 and a fictional worked example but no implementation. M1 now provides the
 versioned domain model, validation, SQLite persistence, revisions, reference-case
 import, exports, a resumable model-backed planning pipeline, and local decision
-workbench. There is no live research, quantitative simulation, or monitoring service.
+workbench, and bounded evidence retrieval. There is no quantitative simulation or
+monitoring service.
 
 Relevant foundations:
 
@@ -65,8 +66,9 @@ personal choices such as job timing, technical capacity planning such as traffic
 growth, and business or technology strategy such as infrastructure adoption.
 Begin with the existing fictional workshop case as a small reference fixture.
 
-Live research, numerical simulation, scheduled monitoring, and team workflows
-follow the MVP. Users can record sources manually in the first release.
+Broader research connectors, numerical simulation, scheduled monitoring, and team
+workflows follow the MVP. Users can record sources manually or retrieve from the
+explicitly configured M4 source boundary.
 Autonomous execution of recommended decisions is outside this roadmap.
 
 ## Milestone overview
@@ -77,7 +79,7 @@ Autonomous execution of recommended decisions is outside this roadmap.
 | M1 — Structured study foundation | **Complete (2026-09-11):** persisted, validated study model | M0 | Reliable save, load, version, and export |
 | M2 — AI planning pipeline | **Complete (2026-09-11):** resumable generation of a complete draft | M1 | Validated stages with traceable inputs and failures |
 | M3 — Decision workbench | **Complete (2026-09-11):** user can inspect, change, and compare choices | M2 | Complete end-to-end MVP |
-| M4 — Evidence and research | Source-backed baseline and refreshable claims | M3 | Claims traceable to inspected sources |
+| M4 — Evidence and research | **Complete (2026-09-12):** source-backed baseline and refreshable claims | M3 | Claims traceable to inspected sources |
 | M5 — Quantitative analysis | Reproducible sensitivity and simulation | M3; M4 for live inputs | Verified calculations and visible limitations |
 | M6 — Indicators and updates | Studies adapt to meaningful new evidence | M4 | Reliable, user-enabled monitoring and revision history |
 | M7 — Pilot and release readiness | Dependable product for intended users | M3; later modules gated separately | Quality, usability, operational, and privacy checks |
@@ -178,6 +180,9 @@ evaluations, revise one input, and see the affected result. Save/reopen preserve
 edits. A study remains usable if the model service fails during regeneration.
 
 ## M4 — Add research and evidence grounding
+
+**Status: Complete (2026-09-12).** Acceptance evidence is recorded in
+[`product/m4-acceptance.md`](product/m4-acceptance.md).
 
 Deliverables:
 
@@ -316,6 +321,7 @@ of analytical quality.
 - [x] Implement M1 persistence and export before connecting generation stages.
 - [x] Implement M2 staged generation against the M1 contracts.
 - [x] Implement the M3 decision workbench against the M2 pipeline.
+- [x] Implement M4 bounded research, evidence review, and refresh revisions.
 
 This roadmap authorizes no deployment, scheduled monitor, or external action;
 it records the proposed development sequence. Revisit scope after the first

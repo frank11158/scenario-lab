@@ -9,6 +9,8 @@ import { StudyService } from "../application/study-service.js";
 import { StudyValidationError, validateStudyDraft } from "../domain/validation.js";
 import type { StudyRepository } from "../persistence/repository.js";
 import type { WorkflowRepository } from "../persistence/workflow-repository.js";
+import { EvidenceResearchService } from "../research/service.js";
+import { SourceRetriever } from "../research/source-retriever.js";
 import { PlanningPipeline, PipelineRunNotFoundError } from "../workflow/pipeline.js";
 import { StudyChangeSchema } from "../workflow/dependencies.js";
 import type { ModelAdapter } from "../workflow/types.js";
@@ -30,6 +32,7 @@ type ServerOptions = {
   referenceCaseDirectory: string;
   staticDirectory?: string;
   clock?: () => string;
+  researchRetriever?: SourceRetriever;
 };
 
 type JsonObject = Record<string, unknown>;
@@ -92,13 +95,20 @@ export type ScenarioServer = {
 export function createScenarioServer(options: ServerOptions): ScenarioServer {
   const studies = new StudyService(options.studies, options.clock);
   const pipeline = new PlanningPipeline(options.studies, options.workflows, options.adapter, options.clock);
+  const research = new EvidenceResearchService(
+    options.studies,
+    options.workflows,
+    options.adapter,
+    options.researchRetriever ?? new SourceRetriever(options.clock ? { clock: options.clock } : {}),
+    options.clock
+  );
 
   const server = createServer(async (request, response) => {
     try {
       const url = new URL(request.url ?? "/", "http://localhost");
       const pathname = url.pathname;
       if (request.method === "GET" && pathname === "/api/health") {
-        return json(response, 200, { ok: true, modelConfigured: options.adapter.provider !== "unavailable" });
+        return json(response, 200, { ok: true, modelConfigured: options.adapter.provider !== "unavailable", research: research.retriever.capabilities });
       }
       if (request.method === "GET" && pathname === "/api/studies") {
         return json(response, 200, { studies: options.studies.listStudies() });
@@ -137,6 +147,15 @@ export function createScenarioServer(options: ServerOptions): ScenarioServer {
       }
       params = match(pathname, /^\/api\/studies\/([^/]+)\/revisions\/([^/]+)$/);
       if (request.method === "GET" && params) return json(response, 200, studies.loadRevision(params[0]!, params[1]!));
+      params = match(pathname, /^\/api\/studies\/([^/]+)\/research\/preview$/);
+      if (request.method === "POST" && params) return json(response, 200, { preview: await research.previewNew(params[0]!, await readJson(request)) });
+      params = match(pathname, /^\/api\/studies\/([^/]+)\/research\/refresh-preview$/);
+      if (request.method === "POST" && params) return json(response, 200, { preview: await research.previewRefresh(params[0]!, await readJson(request)) });
+      params = match(pathname, /^\/api\/studies\/([^/]+)\/research\/apply$/);
+      if (request.method === "POST" && params) {
+        const body = await readJson(request);
+        return json(response, 201, research.apply(params[0]!, body.preview, String(body.summary ?? "Reviewed evidence research update")));
+      }
       params = match(pathname, /^\/api\/studies\/([^/]+)\/runs$/);
       if (request.method === "GET" && params) return json(response, 200, { runs: options.workflows.listRuns(params[0]!) });
       if (request.method === "POST" && params) {

@@ -66,9 +66,17 @@
         "summary": {
           "$ref": "#/definitions/ScenarioLabStudyRevision/properties/parentRevisionId/anyOf/1/properties/note"
         },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "decision",
+            "evidence"
+          ],
+          "default": "decision"
+        },
         "schemaVersion": {
           "type": "string",
-          "const": "1.0.0"
+          "const": "1.1.0"
         }
       },
       "required": [
@@ -84,6 +92,6 @@
     }
   },
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://scenariolab.local/schema/study-revision-1.0.0.json",
+  "$id": "https://scenariolab.local/schema/study-revision-1.1.0.json",
   "$comment": "Structural schema for immutable accepted revision metadata; the SQLite repository stores the validated Study snapshot beside it."
 }

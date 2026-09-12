@@ -4,12 +4,14 @@ import { SqliteStudyRepository } from "../src/persistence/repository.js";
 import { SqliteWorkflowRepository } from "../src/persistence/workflow-repository.js";
 import { createScenarioServer } from "../src/server/app.js";
 import { ScriptedModelAdapter } from "../tests/scripted-model.js";
+import { SourceRetriever } from "../src/research/source-retriever.js";
 
 const database = openDatabase(":memory:");
 const app = createScenarioServer({
   studies: new SqliteStudyRepository(database.db),
   workflows: new SqliteWorkflowRepository(database.db),
   adapter: new ScriptedModelAdapter(),
+  researchRetriever: new SourceRetriever({ documentRoot: resolve("product/research-fixtures") }),
   referenceCaseDirectory: resolve("product/reference-cases"),
   staticDirectory: resolve("web-dist")
 });

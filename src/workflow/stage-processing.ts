@@ -184,10 +184,25 @@ export function applyStageOutput(
   }
   if (stage === "evidence") {
     const output = rawOutput as StageOutputs["evidence"];
+    const detected = output.contradictions.map((item) => ({
+      id: createFixtureId(runId, stage, "contradiction", ...[item.leftEvidenceId, item.rightEvidenceId].sort()),
+      leftEvidenceId: item.leftEvidenceId,
+      rightEvidenceId: item.rightEvidenceId,
+      description: item.description,
+      status: item.resolution === null ? "open" as const : "resolved" as const,
+      resolution: nullable(item.resolution, "Not resolved"),
+      detectedAt: study.updatedAt,
+      detectedBy: "model" as const
+    }));
+    const detectedIds = new Set(detected.map((item) => item.id));
     return validateStudyDraft({
       ...study,
       assumptions: mergeGenerated(study.assumptions, assumptionEntities(runId, stage, output.assumptions)),
-      evidenceGaps: [...new Set([...study.evidenceGaps, ...output.evidenceGaps])]
+      evidenceGaps: [...new Set([...study.evidenceGaps, ...output.evidenceGaps])],
+      research: {
+        ...study.research,
+        contradictions: [...study.research.contradictions.filter((item) => !detectedIds.has(item.id) || item.status === "resolved"), ...detected.filter((item) => !study.research.contradictions.some((prior) => prior.id === item.id && prior.status === "resolved"))]
+      }
     });
   }
   if (stage === "drivers") {

@@ -5,6 +5,7 @@ import { SqliteWorkflowRepository } from "../persistence/workflow-repository.js"
 import { OpenAIResponsesAdapter } from "../workflow/openai-responses-adapter.js";
 import type { ModelAdapter } from "../workflow/types.js";
 import { UnavailableModelAdapter } from "../workflow/unavailable-adapter.js";
+import { SourceRetriever } from "../research/source-retriever.js";
 import { createScenarioServer } from "./app.js";
 
 const port = Number(process.env.SCENARIOLAB_PORT ?? 4174);
@@ -16,6 +17,10 @@ const { server } = createScenarioServer({
   studies: new SqliteStudyRepository(database.db),
   workflows: new SqliteWorkflowRepository(database.db),
   adapter,
+  researchRetriever: new SourceRetriever({
+    allowedWebHosts: (process.env.SCENARIOLAB_RESEARCH_HOSTS ?? "").split(",").map((item) => item.trim()).filter(Boolean),
+    ...(process.env.SCENARIOLAB_DOCUMENT_ROOT ? { documentRoot: resolve(process.env.SCENARIOLAB_DOCUMENT_ROOT) } : {})
+  }),
   referenceCaseDirectory: resolve("product/reference-cases"),
   staticDirectory: resolve("web-dist")
 });

@@ -3,8 +3,9 @@ import type { Study, StudyRevision } from "../../src/domain/schema";
 import type { StudySummary } from "../../src/persistence/repository";
 import { STAGE_ORDER, type PipelineRun } from "../../src/workflow/types";
 import type { StudyChange } from "../../src/workflow/dependencies";
+import type { ResearchPreview, ResearchSourceInput } from "../../src/research/types";
 import { CHANGE_INVALIDATES_FROM } from "../../src/workflow/dependencies";
-import { api, ApiError, type ReferenceCase } from "./api";
+import { api, ApiError, type ReferenceCase, type ResearchCapabilities } from "./api";
 import { NewStudyDialog } from "./components/NewStudyDialog";
 import { BriefPanel } from "./panels/BriefPanel";
 import { ComparePanel } from "./panels/ComparePanel";
@@ -40,6 +41,7 @@ export function App() {
   const [busy, setBusy] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [modelConfigured, setModelConfigured] = useState(false);
+  const [researchCapabilities, setResearchCapabilities] = useState<ResearchCapabilities>({ webHosts: [], documentRoot: null, documentExtensions: [".md", ".txt"] });
   const [newStudyOpen, setNewStudyOpen] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [scenarioCount, setScenarioCount] = useState(3);
@@ -63,6 +65,7 @@ export function App() {
     Promise.all([api.health(), api.listStudies(), api.listReferenceCases()])
       .then(([health, studyResult, cases]) => {
         setModelConfigured(health.modelConfigured);
+        setResearchCapabilities(health.research);
         setStudies(studyResult.studies);
         setReferenceCases(cases.cases);
         if (studyResult.studies[0]) void openStudy(studyResult.studies[0].id);
@@ -167,6 +170,46 @@ export function App() {
     finally { setBusy(false); }
   };
 
+  const previewNewResearch = async (input: ResearchSourceInput): Promise<ResearchPreview | null> => {
+    if (!study) return null;
+    const saved = await persist();
+    if (!saved) return null;
+    try {
+      const result = await api.previewResearch(study.id, input);
+      setMessage(result.preview.entries.some((entry) => entry.status === "unavailable") ? "Preview completed with an unavailable source. Review before recording it." : "Source retrieved. Review the excerpt and support assessment before applying.");
+      return result.preview;
+    } catch (error) { setMessage(errorMessage(error)); return null; }
+  };
+
+  const previewResearchRefresh = async (evidenceIds: string[], maxAgeDays: number): Promise<ResearchPreview | null> => {
+    if (!study) return null;
+    const saved = await persist();
+    if (!saved) return null;
+    try {
+      const result = await api.previewResearchRefresh(study.id, { evidenceIds, maxAgeDays });
+      setMessage("Refresh preview ready. No study data has changed yet.");
+      return result.preview;
+    } catch (error) { setMessage(errorMessage(error)); return null; }
+  };
+
+  const applyResearch = async (preview: ResearchPreview): Promise<void> => {
+    if (!study) return;
+    if (dirty.length) {
+      setMessage("The study changed after the research preview. Save and create a fresh preview before applying.");
+      return;
+    }
+    setBusy(true);
+    try {
+      const applied = await api.applyResearch(study.id, preview, `Reviewed ${preview.entries.length} evidence source${preview.entries.length === 1 ? "" : "s"}`);
+      setStudy(applied.snapshot);
+      setRun(applied.run);
+      setRevisions((await api.listRevisions(study.id)).revisions);
+      setMessage("Evidence update applied as an immutable reviewed revision. Downstream analysis is stale until regenerated.");
+      await refreshList();
+    } catch (error) { setMessage(errorMessage(error)); }
+    finally { setBusy(false); }
+  };
+
   const progress = useMemo(() => study ? [
     Boolean(study.problem.statement && study.objective.statement),
     Boolean(study.assumptions.length || study.evidence.length),
@@ -208,7 +251,7 @@ export function App() {
         {run && <div className="run-strip"><div className="run-label"><span className={`run-dot ${run.status}`}></span><b>Analysis run</b><small>{run.status} · {run.totalUsage.totalTokens.toLocaleString()} tokens · {run.totalUsage.costUsd === null ? "cost unknown" : `$${run.totalUsage.costUsd.toFixed(2)}`}</small></div><div className="stage-pills">{run.stages.map((stage) => <span key={stage.id} className={stage.status} title={stage.error?.message ?? stage.stage}>{stage.stage.replace("_", " ")}</span>)}</div></div>}
         <div className="content-area">
           {tab === "intake" && <IntakePanel study={study} onChange={changeStudy} />}
-          {tab === "evidence" && <EvidencePanel study={study} onChange={changeStudy} />}
+          {tab === "evidence" && <EvidencePanel study={study} capabilities={researchCapabilities} onChange={changeStudy} onPreviewNew={previewNewResearch} onPreviewRefresh={previewResearchRefresh} onApplyResearch={applyResearch} />}
           {tab === "drivers" && <DriversPanel study={study} onChange={changeStudy} />}
           {tab === "scenarios" && <ScenariosPanel study={study} onChange={changeStudy} onMessage={setMessage} />}
           {tab === "compare" && <ComparePanel study={study} onChange={changeStudy} />}

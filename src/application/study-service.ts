@@ -31,6 +31,14 @@ export class StudyService {
   }
 
   acceptRevision(studyId: string, summary: string): StoredRevision {
+    return this.recordRevision(studyId, summary, "decision", true);
+  }
+
+  recordEvidenceRevision(studyId: string, summary: string): StoredRevision {
+    return this.recordRevision(studyId, summary, "evidence", false);
+  }
+
+  private recordRevision(studyId: string, summary: string, kind: StudyRevision["kind"], requireComplete: boolean): StoredRevision {
     if (summary.trim().length === 0) throw new Error("Revision summary must not be empty");
     const current = this.loadStudy(studyId);
     const prior = this.repository.listRevisions(studyId);
@@ -45,15 +53,18 @@ export class StudyService {
         : { status: "unknown", note: "Initial revision" },
       acceptedAt,
       summary: summary.trim(),
+      kind,
       schemaVersion: STUDY_SCHEMA_VERSION
     });
-    const snapshot = validateStudy({
+    const candidate = {
       ...current,
-      status: "reviewed",
+      status: requireComplete ? "reviewed" : current.status,
       updatedAt: acceptedAt,
       currentRevisionId: { status: "known", value: revisionId }
-    });
-    this.repository.saveAcceptedRevision(snapshot, revision);
+    };
+    const snapshot = requireComplete ? validateStudy(candidate) : validateStudyDraft(candidate);
+    if (requireComplete) this.repository.saveAcceptedRevision(snapshot, revision);
+    else this.repository.saveRevisionSnapshot(snapshot, revision);
     return { revision, snapshot };
   }
 

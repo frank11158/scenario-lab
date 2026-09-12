@@ -1,6 +1,6 @@
 import { and, asc, eq } from "drizzle-orm";
-import { StudyRevisionSchema, type Study, type StudyRevision } from "../domain/schema.js";
-import { validateStudy, validateStudyDraft } from "../domain/validation.js";
+import type { Study, StudyRevision } from "../domain/schema.js";
+import { validateStudy, validateStudyDraft, validateStudyRevision } from "../domain/validation.js";
 import type { ScenarioLabDatabase } from "./database.js";
 import { revisionsTable, studiesTable } from "./schema.js";
 
@@ -16,6 +16,7 @@ export interface StudyRepository {
   loadDraft(studyId: string): Study | undefined;
   listStudies(): StudySummary[];
   saveAcceptedRevision(study: Study, revision: StudyRevision): void;
+  saveRevisionSnapshot(study: Study, revision: StudyRevision): void;
   listRevisions(studyId: string): StudyRevision[];
   loadRevision(studyId: string, revisionId: string): StoredRevision | undefined;
 }
@@ -85,7 +86,16 @@ export class SqliteStudyRepository implements StudyRepository {
 
   saveAcceptedRevision(study: Study, revision: StudyRevision): void {
     const valid = validateStudy(study);
-    const validRevision = StudyRevisionSchema.parse(revision);
+    this.persistRevision(valid, revision);
+  }
+
+  saveRevisionSnapshot(study: Study, revision: StudyRevision): void {
+    const valid = validateStudyDraft(study);
+    this.persistRevision(valid, revision);
+  }
+
+  private persistRevision(valid: Study, revision: StudyRevision): void {
+    const validRevision = validateStudyRevision(revision);
     if (validRevision.studyId !== valid.id) throw new Error("Revision studyId does not match the study ID");
     if (valid.currentRevisionId.status !== "known" || valid.currentRevisionId.value !== validRevision.id) {
       throw new Error("Accepted study snapshot must reference the revision being stored");
@@ -136,7 +146,7 @@ export class SqliteStudyRepository implements StudyRepository {
     return this.db.select().from(revisionsTable)
       .where(eq(revisionsTable.studyId, studyId))
       .orderBy(asc(revisionsTable.ordinal)).all()
-      .map((row) => StudyRevisionSchema.parse({
+      .map((row) => validateStudyRevision({
         id: row.id,
         studyId: row.studyId,
         ordinal: row.ordinal,
@@ -156,7 +166,7 @@ export class SqliteStudyRepository implements StudyRepository {
     )).get();
     if (!row) return undefined;
     return {
-      revision: StudyRevisionSchema.parse({
+      revision: validateStudyRevision({
         id: row.id,
         studyId: row.studyId,
         ordinal: row.ordinal,

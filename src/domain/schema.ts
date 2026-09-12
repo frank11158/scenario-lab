@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { EntityIdSchema } from "./ids.js";
 
-export const STUDY_SCHEMA_VERSION = "1.0.0" as const;
+export const STUDY_SCHEMA_VERSION = "1.1.0" as const;
 export const ISODateTimeSchema = z.string().datetime({ offset: true });
 const TextSchema = z.string().trim().min(1, "must not be empty");
 
@@ -49,6 +49,46 @@ export const ConstraintSchema = z.object({
   authorship: AuthorshipSchema
 }).strict();
 
+export const SourceFreshnessSchema = z.object({
+  status: z.enum(["current", "aging", "stale", "unknown"]),
+  asOf: ISODateTimeSchema,
+  basis: TextSchema
+}).strict();
+
+export const SourceSnapshotSchema = z.object({
+  kind: z.enum(["web", "document"]),
+  locator: TextSchema,
+  title: knownOrUnknown(TextSchema),
+  publisher: knownOrUnknown(TextSchema),
+  publishedAt: knownOrUnknown(ISODateTimeSchema),
+  retrievedAt: ISODateTimeSchema,
+  excerpt: TextSchema.max(2_000),
+  contentHash: z.string().regex(/^[a-f0-9]{64}$/),
+  freshness: SourceFreshnessSchema,
+  untrustedContent: z.literal(true)
+}).strict().superRefine((snapshot, context) => {
+  if (snapshot.kind === "web") {
+    try {
+      const url = new URL(snapshot.locator);
+      if (url.protocol !== "https:" || url.username || url.password || (url.port && url.port !== "443")) {
+        context.addIssue({ code: z.ZodIssueCode.custom, path: ["locator"], message: "Web citation locators require HTTPS, no credentials, and the standard port" });
+      }
+    } catch {
+      context.addIssue({ code: z.ZodIssueCode.custom, path: ["locator"], message: "Web citation locator must be a valid URL" });
+    }
+  } else {
+    const segments = snapshot.locator.replaceAll("\\", "/").split("/");
+    if (snapshot.locator.startsWith("/") || /^[a-z]:/i.test(snapshot.locator) || segments.includes("..") || !/\.(md|txt)$/i.test(snapshot.locator)) {
+      context.addIssue({ code: z.ZodIssueCode.custom, path: ["locator"], message: "Document citation locator must be a relative .md or .txt path without parent traversal" });
+    }
+  }
+});
+
+export const SupportAssessmentSchema = z.object({
+  status: z.enum(["unreviewed", "supports", "partially_supports", "contradicts", "unsupported"]),
+  rationale: knownOrUnknown(TextSchema)
+}).strict();
+
 export const EvidenceSchema = z.object({
   id: EntityIdSchema,
   claim: TextSchema,
@@ -57,7 +97,38 @@ export const EvidenceSchema = z.object({
   observedAt: knownOrUnknown(ISODateTimeSchema),
   retrievedAt: knownOrUnknown(ISODateTimeSchema),
   limitations: z.array(TextSchema).default([]),
+  citation: SourceSnapshotSchema.optional(),
+  support: SupportAssessmentSchema.default({
+    status: "unreviewed",
+    rationale: { status: "unknown", note: "A reviewer has not assessed whether the source supports the claim" }
+  }),
   authorship: AuthorshipSchema
+}).strict();
+
+export const EvidenceContradictionSchema = z.object({
+  id: EntityIdSchema,
+  leftEvidenceId: EntityIdSchema,
+  rightEvidenceId: EntityIdSchema,
+  description: TextSchema,
+  status: z.enum(["open", "resolved"]),
+  resolution: knownOrUnknown(TextSchema),
+  detectedAt: ISODateTimeSchema,
+  detectedBy: z.enum(["heuristic", "model", "user"])
+}).strict();
+
+export const UnavailableSourceSchema = z.object({
+  id: EntityIdSchema,
+  evidenceId: EntityIdSchema.optional(),
+  kind: z.enum(["web", "document"]),
+  locator: TextSchema,
+  reason: TextSchema,
+  checkedAt: ISODateTimeSchema
+}).strict();
+
+export const ResearchStateSchema = z.object({
+  contradictions: z.array(EvidenceContradictionSchema).default([]),
+  unavailableSources: z.array(UnavailableSourceSchema).default([]),
+  lastReviewedAt: knownOrUnknown(ISODateTimeSchema)
 }).strict();
 
 export const AssumptionSchema = z.object({
@@ -189,6 +260,7 @@ export const StudyRevisionSchema = z.object({
   parentRevisionId: knownOrUnknown(EntityIdSchema),
   acceptedAt: ISODateTimeSchema,
   summary: TextSchema,
+  kind: z.enum(["decision", "evidence"]).default("decision"),
   schemaVersion: z.literal(STUDY_SCHEMA_VERSION)
 }).strict();
 
@@ -206,6 +278,11 @@ export const StudySchema = z.object({
   objective: ObjectiveSchema,
   constraints: z.array(ConstraintSchema),
   evidence: z.array(EvidenceSchema),
+  research: ResearchStateSchema.default({
+    contradictions: [],
+    unavailableSources: [],
+    lastReviewedAt: { status: "unknown", note: "Evidence has not been reviewed" }
+  }),
   assumptions: z.array(AssumptionSchema),
   drivers: z.array(DriverSchema),
   scenarioCoverage: ScenarioCoverageSchema,
@@ -226,6 +303,11 @@ export type Problem = z.infer<typeof ProblemSchema>;
 export type Objective = z.infer<typeof ObjectiveSchema>;
 export type Constraint = z.infer<typeof ConstraintSchema>;
 export type Evidence = z.infer<typeof EvidenceSchema>;
+export type SourceSnapshot = z.infer<typeof SourceSnapshotSchema>;
+export type SupportAssessment = z.infer<typeof SupportAssessmentSchema>;
+export type EvidenceContradiction = z.infer<typeof EvidenceContradictionSchema>;
+export type UnavailableSource = z.infer<typeof UnavailableSourceSchema>;
+export type ResearchState = z.infer<typeof ResearchStateSchema>;
 export type Assumption = z.infer<typeof AssumptionSchema>;
 export type Driver = z.infer<typeof DriverSchema>;
 export type Scenario = z.infer<typeof ScenarioSchema>;

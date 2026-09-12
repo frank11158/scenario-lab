@@ -137,3 +137,22 @@ findings, while the patched major versions required a newer runtime. The MVP has
 a deliberately small, loopback-only route set, so the native server met the same
 boundary and security-header requirements with less dependency risk. Reconsider a
 framework when routing, middleware, or hosted deployment complexity justifies it.
+
+## M4 evidence retrieval boundary
+
+Research remains inside the modular monolith behind a `SourceRetriever` interface.
+The first implementation supports only UTF-8 `.md`/`.txt` files beneath one
+configured canonical root and HTTPS URLs on an exact configured hostname allowlist.
+Web redirects are not followed; DNS results must all be public, and the selected
+verified address is pinned for the TLS connection while certificate validation
+uses the original hostname. Responses are time- and size-bounded, active HTML is
+discarded, and no cookies or credentials are forwarded.
+
+This follows the [OWASP SSRF prevention guidance](https://cheatsheetseries.owasp.org/cheatsheets/Server_Side_Request_Forgery_Prevention_Cheat_Sheet.html)
+to prefer allowlists, validate protocols and resolved addresses, disable automatic
+redirects, and account for DNS rebinding. Node's
+[`fsPromises.realpath`](https://nodejs.org/docs/latest-v18.x/api/fs.html#fspromisesrealpathpath-options)
+is used before enforcing document-root containment. Retrieved
+text remains explicitly untrusted through storage, rendering, and model prompts.
+Broader file parsers, authenticated sites, search engines, and connector-based
+retrieval require separate threat modeling and are not silently accepted.

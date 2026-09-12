@@ -44,8 +44,14 @@ export function exportStudyMarkdown(input: unknown): string {
         }).join(" | ")} | ${cell(display(strategy.costAndReversibility))} |`)
       ].join("\n");
   const evidenceRows = study.evidence.length
-    ? study.evidence.map((item) => `| ${item.id} | ${cell(item.claim)} | ${item.type} | ${cell(display(item.source))} | ${cell(item.limitations.join("; ") || "None recorded")} |`).join("\n")
+    ? study.evidence.map((item) => `| ${item.id} | ${cell(item.claim)} | ${item.type} | ${item.support.status} | ${cell(display(item.source))} | ${item.citation ? cell(display(item.citation.publishedAt)) : "Unknown"} | ${item.citation?.retrievedAt ?? display(item.retrievedAt)} | ${item.citation?.freshness.status ?? "unknown"} | ${cell(item.citation?.excerpt ?? "No source excerpt recorded")} | ${cell(item.limitations.join("; ") || "None recorded")} |`).join("\n")
+    : "| — | None recorded | — | — | — | — | — | — | — | — |";
+  const contradictionRows = study.research.contradictions.length
+    ? study.research.contradictions.map((item) => `| ${item.leftEvidenceId} ↔ ${item.rightEvidenceId} | ${cell(item.description)} | ${item.status} | ${cell(display(item.resolution))} | ${item.detectedBy} |`).join("\n")
     : "| — | None recorded | — | — | — |";
+  const unavailableRows = study.research.unavailableSources.length
+    ? study.research.unavailableSources.map((item) => `| ${item.kind} | ${cell(item.locator)} | ${cell(item.reason)} | ${item.checkedAt} |`).join("\n")
+    : "| — | None recorded | — | — |";
   const assumptionRows = study.assumptions.length
     ? study.assumptions.map((item) => `| ${item.id} | ${cell(item.statement)} | ${cell(item.basis)} | ${cell(display(item.effectIfWrong))} | ${cell(display(item.test))} |`).join("\n")
     : "| — | None recorded | — | — | — |";
@@ -77,9 +83,21 @@ ${list(study.problem.externalUncertainties)}
 
 ## Baseline and evidence
 
-| ID | Claim | Type | Source | Limitations |
-|---|---|---|---|---|
+| ID | Claim | Type | Support | Source | Published | Retrieved | Freshness | Source excerpt | Limitations |
+|---|---|---|---|---|---|---|---|---|---|
 ${evidenceRows}
+
+### Evidence review
+
+Last reviewed: ${display(study.research.lastReviewedAt)}
+
+| Potential conflict | Description | Status | Resolution | Detected by |
+|---|---|---|---|---|
+${contradictionRows}
+
+| Unavailable source kind | Locator | Reason | Checked at |
+|---|---|---|---|
+${unavailableRows}
 
 ### Assumptions
 
