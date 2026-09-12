@@ -1,0 +1,30 @@
+{
+  "name": "scenario-lab",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Structured scenario-planning study foundation",
+  "type": "module",
+  "engines": {
+    "node": ">=18.14"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "check": "npm run typecheck && npm test && npm run fixtures:validate && npm run schema:check",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "npm run build && node --test dist/tests/*.test.js",
+    "fixtures:validate": "npm run build && node dist/scripts/validate-fixtures.js",
+    "schema:generate": "npm run build && node dist/scripts/generate-schema.js --write",
+    "schema:check": "npm run build && node dist/scripts/generate-schema.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "9.6.0",
+    "drizzle-orm": "0.45.2",
+    "zod": "3.23.8",
+    "zod-to-json-schema": "3.23.5"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "7.6.11",
+    "@types/node": "18.19.39",
+    "typescript": "5.5.3"
+  }
+}

@@ -1,0 +1,89 @@
+{
+  "$ref": "#/definitions/ScenarioLabStudyRevision",
+  "definitions": {
+    "ScenarioLabStudyRevision": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "errorMessage": {
+            "format": "must be an opaque UUID"
+          }
+        },
+        "studyId": {
+          "$ref": "#/definitions/ScenarioLabStudyRevision/properties/id"
+        },
+        "ordinal": {
+          "type": "integer",
+          "exclusiveMinimum": 0
+        },
+        "parentRevisionId": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "const": "known"
+                },
+                "value": {
+                  "$ref": "#/definitions/ScenarioLabStudyRevision/properties/id"
+                }
+              },
+              "required": [
+                "status",
+                "value"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "const": "unknown"
+                },
+                "note": {
+                  "type": "string",
+                  "minLength": 1,
+                  "errorMessage": {
+                    "minLength": "must not be empty"
+                  }
+                }
+              },
+              "required": [
+                "status"
+              ],
+              "additionalProperties": false
+            }
+          ]
+        },
+        "acceptedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "summary": {
+          "$ref": "#/definitions/ScenarioLabStudyRevision/properties/parentRevisionId/anyOf/1/properties/note"
+        },
+        "schemaVersion": {
+          "type": "string",
+          "const": "1.0.0"
+        }
+      },
+      "required": [
+        "id",
+        "studyId",
+        "ordinal",
+        "parentRevisionId",
+        "acceptedAt",
+        "summary",
+        "schemaVersion"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://scenariolab.local/schema/study-revision-1.0.0.json",
+  "$comment": "Structural schema for immutable accepted revision metadata; the SQLite repository stores the validated Study snapshot beside it."
+}

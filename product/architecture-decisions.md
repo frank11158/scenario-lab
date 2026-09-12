@@ -20,7 +20,7 @@ multi-user hosted architecture.
 | Persistence | SQLite + Drizzle ORM; append-only accepted revisions | Portable local database, transactions, inspectable migrations | Concurrent multi-user writes or hosted isolation is required |
 | Model integration | Provider-neutral adapter; first adapter uses OpenAI Responses API structured output | One supported path while preventing provider logic from entering domain code | Quality, residency, cost, or availability requires another provider |
 | Deployment | Local Node process serving API and static UI; Docker image as reproducible pilot option | Single-user boundary without premature cloud operations | Representative pilots need zero-install hosting |
-| Testing | Vitest for domain/application; Playwright for critical flows; JSON fixtures for evaluation | Covers deterministic core and user-visible workflow | Test feedback or platform changes justify alternatives |
+| Testing | Node test runner for M1 domain/application; Playwright for M3 critical flows; JSON fixtures for evaluation | Avoids a known vulnerable Node-18-compatible Vitest dependency while covering the deterministic core | Runtime upgrade makes an advisory-free Vitest version available or test needs change |
 | Observability | Local structured logs and per-stage run/usage records; no study content in diagnostics by default | Debuggability with data minimization | Hosted operations require centralized telemetry |
 
 Library versions are selected and locked when M1 scaffolding begins. M0 fixes the

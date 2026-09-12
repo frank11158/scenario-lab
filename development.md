@@ -1,6 +1,6 @@
 # ScenarioLab development roadmap
 
-Status: Active roadmap; M0 completed 2026-09-11, M1 not started.
+Status: Active roadmap; M0 and M1 completed 2026-09-11, M2 not started.
 
 ## Product goal
 
@@ -21,11 +21,11 @@ they are not commitments or requirements already agreed in that conversation.
 
 ## Starting point
 
-The repository currently contains project instructions, intake and study
-templates, evidence and update templates, and a fictional worked example.
-These establish the method and can become product requirements and evaluation
-fixtures. There is no implemented engine, application interface, database,
-model integration, or monitoring service yet.
+At roadmap approval, the repository contained project instructions, templates,
+and a fictional worked example but no implementation. M1 now provides the
+versioned domain model, validation, SQLite persistence, revisions, reference-case
+import, and export foundation. There is still no application interface, model
+integration, or monitoring service.
 
 Relevant foundations:
 
@@ -74,7 +74,7 @@ Autonomous execution of recommended decisions is outside this roadmap.
 | Milestone | Outcome | Depends on | Release gate |
 |---|---|---|---|
 | M0 — Product definition | **Complete (2026-09-11):** shared scope and reference cases | Existing workspace | Reviewable requirements and evaluation rubric |
-| M1 — Structured study foundation | Persisted, validated study model | M0 | Reliable save, load, version, and export |
+| M1 — Structured study foundation | **Complete (2026-09-11):** persisted, validated study model | M0 | Reliable save, load, version, and export |
 | M2 — AI planning pipeline | Resumable generation of a complete draft | M1 | Validated stages with traceable inputs and failures |
 | M3 — Decision workbench | User can inspect, change, and compare choices | M2 | Complete end-to-end MVP |
 | M4 — Evidence and research | Source-backed baseline and refreshable claims | M3 | Claims traceable to inspected sources |
@@ -111,6 +111,9 @@ later features. There is an agreed method for judging usefulness without assumin
 that only one scenario set or recommendation is correct.
 
 ## M1 — Build the structured study foundation
+
+**Status: Complete (2026-09-11).** Acceptance evidence is recorded in
+[`product/m1-acceptance.md`](product/m1-acceptance.md).
 
 Deliverables:
 
@@ -301,10 +304,11 @@ of analytical quality.
 
 - [x] Complete M0 product brief and choose the first application surface.
 - [x] Convert the workshop example into the first structured reference fixture.
-- [ ] Define the versioned study schema and validation rules.
+- [x] Define the versioned study schema and validation rules.
 - [x] Establish the evaluation rubric and remaining reference cases.
 - [x] Record stack, storage, provider, deployment, and cost-budget decisions.
-- [ ] Implement M1 persistence and export before connecting generation stages.
+- [x] Implement M1 persistence and export before connecting generation stages.
+- [ ] Implement M2 staged generation against the M1 contracts.
 
 This roadmap authorizes no deployment, scheduled monitor, or external action;
 it records the proposed development sequence. Revisit scope after the first
