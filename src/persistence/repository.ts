@@ -1,6 +1,6 @@
 import { and, asc, eq } from "drizzle-orm";
 import { StudyRevisionSchema, type Study, type StudyRevision } from "../domain/schema.js";
-import { validateStudy } from "../domain/validation.js";
+import { validateStudy, validateStudyDraft } from "../domain/validation.js";
 import type { ScenarioLabDatabase } from "./database.js";
 import { revisionsTable, studiesTable } from "./schema.js";
 
@@ -25,7 +25,7 @@ export class SqliteStudyRepository implements StudyRepository {
   constructor(private readonly db: ScenarioLabDatabase) {}
 
   saveDraft(study: Study): void {
-    const valid = validateStudy(study);
+    const valid = validateStudyDraft(study);
     if (valid.currentRevisionId.status === "known") {
       const revision = this.db.select({ id: revisionsTable.id }).from(revisionsTable).where(and(
         eq(revisionsTable.studyId, valid.id),
@@ -60,7 +60,7 @@ export class SqliteStudyRepository implements StudyRepository {
   loadDraft(studyId: string): Study | undefined {
     const row = this.db.select({ draftJson: studiesTable.draftJson })
       .from(studiesTable).where(eq(studiesTable.id, studyId)).get();
-    return row ? validateStudy(JSON.parse(row.draftJson)) : undefined;
+    return row ? validateStudyDraft(JSON.parse(row.draftJson)) : undefined;
   }
 
   saveAcceptedRevision(study: Study, revision: StudyRevision): void {

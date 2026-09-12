@@ -1,0 +1,91 @@
+{
+  "$ref": "#/definitions/ScenarioLab_framing_output",
+  "definitions": {
+    "ScenarioLab_framing_output": {
+      "type": "object",
+      "properties": {
+        "missingFields": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "clarifyingQuestions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ScenarioLab_framing_output/properties/missingFields/items"
+          }
+        },
+        "provisionalAssumptions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "statement": {
+                "$ref": "#/definitions/ScenarioLab_framing_output/properties/missingFields/items"
+              },
+              "basis": {
+                "$ref": "#/definitions/ScenarioLab_framing_output/properties/missingFields/items"
+              },
+              "plausibleAlternatives": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/ScenarioLab_framing_output/properties/missingFields/items"
+                }
+              },
+              "effectIfWrong": {
+                "anyOf": [
+                  {
+                    "$ref": "#/definitions/ScenarioLab_framing_output/properties/missingFields/items"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "test": {
+                "$ref": "#/definitions/ScenarioLab_framing_output/properties/provisionalAssumptions/items/properties/effectIfWrong"
+              },
+              "evidenceIds": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "format": "uuid",
+                  "errorMessage": {
+                    "format": "must be an opaque UUID"
+                  }
+                }
+              }
+            },
+            "required": [
+              "statement",
+              "basis",
+              "plausibleAlternatives",
+              "effectIfWrong",
+              "test",
+              "evidenceIds"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "framingRisks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ScenarioLab_framing_output/properties/missingFields/items"
+          }
+        }
+      },
+      "required": [
+        "missingFields",
+        "clarifyingQuestions",
+        "provisionalAssumptions",
+        "framingRisks"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://scenariolab.local/schema/stages/framing-2.0.0.json",
+  "$comment": "Structured output contract for the framing planning stage."
+}

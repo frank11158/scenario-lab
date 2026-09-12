@@ -1,0 +1,145 @@
+{
+  "$ref": "#/definitions/ScenarioLab_synthesis_output",
+  "definitions": {
+    "ScenarioLab_synthesis_output": {
+      "type": "object",
+      "properties": {
+        "recommendation": {
+          "type": "string",
+          "minLength": 1
+        },
+        "strongestChallenge": {
+          "$ref": "#/definitions/ScenarioLab_synthesis_output/properties/recommendation"
+        },
+        "reversalAssumption": {
+          "$ref": "#/definitions/ScenarioLab_synthesis_output/properties/recommendation"
+        },
+        "unresolvedGaps": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ScenarioLab_synthesis_output/properties/recommendation"
+          }
+        },
+        "actions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "key": {
+                "$ref": "#/definitions/ScenarioLab_synthesis_output/properties/recommendation"
+              },
+              "timing": {
+                "type": "string",
+                "enum": [
+                  "now",
+                  "prepare",
+                  "if_triggered"
+                ]
+              },
+              "description": {
+                "$ref": "#/definitions/ScenarioLab_synthesis_output/properties/recommendation"
+              },
+              "owner": {
+                "anyOf": [
+                  {
+                    "$ref": "#/definitions/ScenarioLab_synthesis_output/properties/recommendation"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "due": {
+                "$ref": "#/definitions/ScenarioLab_synthesis_output/properties/actions/items/properties/owner"
+              },
+              "successCheck": {
+                "$ref": "#/definitions/ScenarioLab_synthesis_output/properties/recommendation"
+              },
+              "triggerIndicatorKeys": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/ScenarioLab_synthesis_output/properties/recommendation"
+                }
+              }
+            },
+            "required": [
+              "key",
+              "timing",
+              "description",
+              "owner",
+              "due",
+              "successCheck",
+              "triggerIndicatorKeys"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 1
+        },
+        "indicators": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "key": {
+                "$ref": "#/definitions/ScenarioLab_synthesis_output/properties/recommendation"
+              },
+              "name": {
+                "$ref": "#/definitions/ScenarioLab_synthesis_output/properties/recommendation"
+              },
+              "source": {
+                "$ref": "#/definitions/ScenarioLab_synthesis_output/properties/actions/items/properties/owner"
+              },
+              "threshold": {
+                "$ref": "#/definitions/ScenarioLab_synthesis_output/properties/recommendation"
+              },
+              "observationWindow": {
+                "$ref": "#/definitions/ScenarioLab_synthesis_output/properties/recommendation"
+              },
+              "implication": {
+                "$ref": "#/definitions/ScenarioLab_synthesis_output/properties/recommendation"
+              },
+              "actionKeys": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/ScenarioLab_synthesis_output/properties/recommendation"
+                },
+                "minItems": 1
+              },
+              "owner": {
+                "$ref": "#/definitions/ScenarioLab_synthesis_output/properties/actions/items/properties/owner"
+              },
+              "reviewCadence": {
+                "$ref": "#/definitions/ScenarioLab_synthesis_output/properties/recommendation"
+              }
+            },
+            "required": [
+              "key",
+              "name",
+              "source",
+              "threshold",
+              "observationWindow",
+              "implication",
+              "actionKeys",
+              "owner",
+              "reviewCadence"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 1
+        }
+      },
+      "required": [
+        "recommendation",
+        "strongestChallenge",
+        "reversalAssumption",
+        "unresolvedGaps",
+        "actions",
+        "indicators"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://scenariolab.local/schema/stages/synthesis-2.0.0.json",
+  "$comment": "Structured output contract for the synthesis planning stage."
+}

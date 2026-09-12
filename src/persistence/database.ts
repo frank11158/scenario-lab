@@ -39,6 +39,46 @@ export const DATABASE_MIGRATIONS: Migration[] = [{
     CREATE INDEX study_revisions_study_id_index
       ON study_revisions(study_id);
   `
+}, {
+  id: 2,
+  sql: `
+    CREATE TABLE workflow_runs (
+      id TEXT PRIMARY KEY NOT NULL,
+      schema_version TEXT NOT NULL,
+      study_id TEXT NOT NULL REFERENCES studies(id) ON DELETE CASCADE,
+      status TEXT NOT NULL,
+      config_json TEXT NOT NULL,
+      cancel_requested INTEGER NOT NULL,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL,
+      completed_at TEXT,
+      total_usage_json TEXT NOT NULL
+    );
+    CREATE TABLE workflow_stage_runs (
+      id TEXT PRIMARY KEY NOT NULL,
+      run_id TEXT NOT NULL REFERENCES workflow_runs(id) ON DELETE CASCADE,
+      stage TEXT NOT NULL,
+      ordinal INTEGER NOT NULL,
+      status TEXT NOT NULL,
+      attempt_count INTEGER NOT NULL,
+      input_json TEXT,
+      input_hash TEXT,
+      output_json TEXT,
+      prompt_version TEXT NOT NULL,
+      provider TEXT,
+      model TEXT,
+      model_version TEXT,
+      response_id TEXT,
+      usage_json TEXT,
+      error_json TEXT,
+      started_at TEXT,
+      completed_at TEXT
+    );
+    CREATE UNIQUE INDEX workflow_stage_runs_run_stage_unique
+      ON workflow_stage_runs(run_id, stage);
+    CREATE INDEX workflow_runs_study_id_index ON workflow_runs(study_id);
+    CREATE INDEX workflow_stage_runs_run_id_index ON workflow_stage_runs(run_id);
+  `
 }];
 
 function migrate(sqlite: Database.Database): void {

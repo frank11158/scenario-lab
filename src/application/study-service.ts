@@ -1,6 +1,6 @@
 import { createId } from "../domain/ids.js";
 import { STUDY_SCHEMA_VERSION, StudyRevisionSchema, type Study, type StudyRevision } from "../domain/schema.js";
-import { validateStudy } from "../domain/validation.js";
+import { validateStudy, validateStudyDraft } from "../domain/validation.js";
 import type { StoredRevision, StudyRepository } from "../persistence/repository.js";
 import { RevisionNotFoundError, StudyNotFoundError } from "./errors.js";
 
@@ -13,13 +13,13 @@ export class StudyService {
   ) {}
 
   createStudy(input: unknown): Study {
-    const study = validateStudy(input);
+    const study = validateStudyDraft(input);
     this.repository.saveDraft(study);
     return study;
   }
 
   saveStudy(input: unknown): Study {
-    const study = validateStudy(input);
+    const study = validateStudyDraft(input);
     this.repository.saveDraft(study);
     return study;
   }

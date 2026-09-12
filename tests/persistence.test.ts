@@ -5,7 +5,7 @@ import { join } from "node:path";
 import { describe, it } from "node:test";
 import { StudyService } from "../src/application/study-service.js";
 import { createId } from "../src/domain/ids.js";
-import { openDatabase } from "../src/persistence/database.js";
+import { DATABASE_MIGRATIONS, openDatabase } from "../src/persistence/database.js";
 import { SqliteStudyRepository } from "../src/persistence/repository.js";
 import { importedStudy } from "./helpers.js";
 
@@ -43,14 +43,14 @@ describe("SQLite study persistence", () => {
     try {
       const first = openDatabase(filename);
       new StudyService(new SqliteStudyRepository(first.db)).createStudy(study);
-      assert.equal((first.sqlite.prepare("SELECT COUNT(*) AS count FROM schema_migrations").get() as { count: number }).count, 1);
+      assert.equal((first.sqlite.prepare("SELECT COUNT(*) AS count FROM schema_migrations").get() as { count: number }).count, DATABASE_MIGRATIONS.length);
       first.close();
 
       const reopened = openDatabase(filename);
       try {
         const loaded = new StudyService(new SqliteStudyRepository(reopened.db)).loadStudy(study.id);
         assert.deepEqual(loaded, study);
-        assert.equal((reopened.sqlite.prepare("SELECT COUNT(*) AS count FROM schema_migrations").get() as { count: number }).count, 1);
+        assert.equal((reopened.sqlite.prepare("SELECT COUNT(*) AS count FROM schema_migrations").get() as { count: number }).count, DATABASE_MIGRATIONS.length);
       } finally {
         reopened.close();
       }

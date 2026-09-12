@@ -2,8 +2,10 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { zodToJsonSchema } from "zod-to-json-schema";
 import { STUDY_SCHEMA_VERSION, StudyRevisionSchema, StudySchema } from "../src/domain/schema.js";
+import { STAGE_OUTPUT_SCHEMAS } from "../src/workflow/stage-schemas.js";
+import { PipelineRunSchema, WORKFLOW_SCHEMA_VERSION } from "../src/workflow/types.js";
 
-const outputs = [
+const structuralOutputs = [
   {
     path: resolve("schema/study.schema.json"),
     name: "ScenarioLabStudy",
@@ -16,13 +18,35 @@ const outputs = [
     schema: StudyRevisionSchema,
     comment: "Structural schema for immutable accepted revision metadata; the SQLite repository stores the validated Study snapshot beside it."
   }
-].map((item) => {
+];
+
+const workflowOutputs = [
+  {
+    path: resolve("schema/workflow-run.schema.json"),
+    name: "ScenarioLabWorkflowRun",
+    schema: PipelineRunSchema,
+    id: `https://scenariolab.local/schema/workflow-run-${WORKFLOW_SCHEMA_VERSION}.json`,
+    comment: "Persisted planning run with resumable stage checkpoints, metadata, usage, errors, and freshness state."
+  },
+  ...Object.entries(STAGE_OUTPUT_SCHEMAS).map(([stage, schema]) => ({
+    path: resolve(`schema/stages/${stage}.schema.json`),
+    name: `ScenarioLab_${stage}_output`,
+    schema,
+    id: `https://scenariolab.local/schema/stages/${stage}-${WORKFLOW_SCHEMA_VERSION}.json`,
+    comment: `Structured output contract for the ${stage} planning stage.`
+  }))
+];
+
+const outputs = [...structuralOutputs.map((item) => ({
+  ...item,
+  id: `https://scenariolab.local/schema/${item.name === "ScenarioLabStudy" ? "study" : "study-revision"}-${STUDY_SCHEMA_VERSION}.json`
+})), ...workflowOutputs].map((item) => {
   const schema = zodToJsonSchema(item.schema, {
     name: item.name,
     target: "jsonSchema7",
     errorMessages: true
   }) as Record<string, unknown>;
-  schema.$id = `https://scenariolab.local/schema/${item.name === "ScenarioLabStudy" ? "study" : "study-revision"}-${STUDY_SCHEMA_VERSION}.json`;
+  schema.$id = item.id;
   schema.$comment = item.comment;
   return { path: item.path, content: `${JSON.stringify(schema, null, 2)}\n` };
 });
@@ -30,6 +54,7 @@ const outputs = [
 if (process.argv.includes("--write")) {
   mkdirSync(resolve("schema"), { recursive: true });
   for (const output of outputs) {
+    mkdirSync(resolve(output.path, ".."), { recursive: true });
     writeFileSync(output.path, output.content);
     process.stdout.write(`wrote ${output.path}\n`);
   }

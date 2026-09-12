@@ -38,6 +38,7 @@ is available when you want to prepare the context yourself.
 | [Development roadmap](development.md) | Product milestones and release gates |
 | [M0 product baseline](product/m0-acceptance.md) | Approved scope, flows, fixtures, rubric, and architecture decisions |
 | [M1 foundation](product/m1-acceptance.md) | Versioned model, validation, SQLite persistence, revisions, imports, and exports |
+| [M2 pipeline](product/m2-acceptance.md) | Resumable validated generation, model adapter, retries, usage, and staleness |
 
 Each study produces a readable decision brief, scenario comparison, strategy
 assessment, and action plan, with an evidence register and update history.
@@ -54,8 +55,8 @@ It requires no application server, package installation, or separate API key.
 It does not include an autonomous forecasting engine or scheduled monitoring.
 Research depends on the sources and tools available in a particular task.
 
-Product development has completed Milestones 0 and 1. The reviewable baselines
-live in [`product/`](product/); the AI planning pipeline begins with M2.
+Product development has completed Milestones 0 through 2. The reviewable baselines
+live in [`product/`](product/); the decision workbench begins with M3.
 
 Scenarios explore plausible futures; they are not predictions. Probabilities
 are optional. A study should help you identify choices that hold up across futures
@@ -73,4 +74,5 @@ npm run check
 The public TypeScript entry point is `src/index.ts`. It exports the versioned Zod
 study contracts, relationship validation, study-draft factory, reference-case
 importer, deterministic Markdown/JSON exporters, SQLite database and repository,
-and revision service. Generated JSON Schemas are in [`schema/`](schema/).
+revision service, and resumable planning pipeline. Generated JSON Schemas are in
+[`schema/`](schema/).

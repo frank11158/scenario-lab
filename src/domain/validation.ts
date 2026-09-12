@@ -135,12 +135,12 @@ function checkStrategyCoverage(study: Study, issues: ValidationIssue[]): void {
   }
 }
 
-function checkStudyInvariants(study: Study): ValidationIssue[] {
+function checkStudyInvariants(study: Study, requireCompleteStrategyCoverage: boolean): ValidationIssue[] {
   const issues: ValidationIssue[] = [];
   uniqueIds(study, issues);
   checkReferences(study, issues);
   checkProbability(study, issues);
-  checkStrategyCoverage(study, issues);
+  if (requireCompleteStrategyCoverage) checkStrategyCoverage(study, issues);
   if (!study.strategies.some((strategy) => strategy.statusQuo)) {
     issues.push({ path: "strategies", code: "missing_status_quo", message: "At least one strategy must represent the status quo" });
   }
@@ -153,12 +153,21 @@ function checkStudyInvariants(study: Study): ValidationIssue[] {
   return issues;
 }
 
-export function validateStudy(input: unknown): Study {
+function validate(input: unknown, requireCompleteStrategyCoverage: boolean): Study {
   const parsed = StudySchema.safeParse(input);
   if (!parsed.success) throw new StudyValidationError(zodIssues(parsed.error));
-  const issues = checkStudyInvariants(parsed.data);
+  const issues = checkStudyInvariants(parsed.data, requireCompleteStrategyCoverage);
   if (issues.length > 0) throw new StudyValidationError(issues);
   return parsed.data;
+}
+
+export function validateStudy(input: unknown): Study {
+  return validate(input, true);
+}
+
+/** Validates a persistable working draft while allowing an incomplete evaluation matrix. */
+export function validateStudyDraft(input: unknown): Study {
+  return validate(input, false);
 }
 
 export function safeValidateStudy(input: unknown): { success: true; data: Study } | { success: false; issues: ValidationIssue[] } {

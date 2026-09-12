@@ -1,0 +1,137 @@
+{
+  "$ref": "#/definitions/ScenarioLab_scenarios_output",
+  "definitions": {
+    "ScenarioLab_scenarios_output": {
+      "type": "object",
+      "properties": {
+        "coverage": {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "exploratory",
+                "mutually_exclusive_exhaustive"
+              ]
+            },
+            "rationale": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "kind",
+            "rationale"
+          ],
+          "additionalProperties": false
+        },
+        "scenarios": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "$ref": "#/definitions/ScenarioLab_scenarios_output/properties/coverage/properties/rationale"
+              },
+              "driverStates": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "driverId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "errorMessage": {
+                        "format": "must be an opaque UUID"
+                      }
+                    },
+                    "state": {
+                      "$ref": "#/definitions/ScenarioLab_scenarios_output/properties/coverage/properties/rationale"
+                    }
+                  },
+                  "required": [
+                    "driverId",
+                    "state"
+                  ],
+                  "additionalProperties": false
+                },
+                "minItems": 1
+              },
+              "causalMechanism": {
+                "$ref": "#/definitions/ScenarioLab_scenarios_output/properties/coverage/properties/rationale"
+              },
+              "timeline": {
+                "$ref": "#/definitions/ScenarioLab_scenarios_output/properties/coverage/properties/rationale"
+              },
+              "disconfirmingEvidence": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/ScenarioLab_scenarios_output/properties/coverage/properties/rationale"
+                },
+                "minItems": 1
+              },
+              "probability": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "value": {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 1
+                      },
+                      "basis": {
+                        "$ref": "#/definitions/ScenarioLab_scenarios_output/properties/coverage/properties/rationale"
+                      }
+                    },
+                    "required": [
+                      "value",
+                      "basis"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "evidenceConfidence": {
+                "type": "string",
+                "enum": [
+                  "low",
+                  "medium",
+                  "high"
+                ]
+              },
+              "assumptionIds": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/ScenarioLab_scenarios_output/properties/scenarios/items/properties/driverStates/items/properties/driverId"
+                }
+              }
+            },
+            "required": [
+              "name",
+              "driverStates",
+              "causalMechanism",
+              "timeline",
+              "disconfirmingEvidence",
+              "probability",
+              "evidenceConfidence",
+              "assumptionIds"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "coverage",
+        "scenarios"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://scenariolab.local/schema/stages/scenarios-2.0.0.json",
+  "$comment": "Structured output contract for the scenarios planning stage."
+}

@@ -1,0 +1,84 @@
+{
+  "$ref": "#/definitions/ScenarioLab_drivers_output",
+  "definitions": {
+    "ScenarioLab_drivers_output": {
+      "type": "object",
+      "properties": {
+        "drivers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1
+              },
+              "currentState": {
+                "anyOf": [
+                  {
+                    "$ref": "#/definitions/ScenarioLab_drivers_output/properties/drivers/items/properties/name"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "impact": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 5
+              },
+              "uncertainty": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 5
+              },
+              "rationale": {
+                "$ref": "#/definitions/ScenarioLab_drivers_output/properties/drivers/items/properties/name"
+              },
+              "evidenceIds": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "format": "uuid",
+                  "errorMessage": {
+                    "format": "must be an opaque UUID"
+                  }
+                }
+              },
+              "assumptionIds": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/ScenarioLab_drivers_output/properties/drivers/items/properties/evidenceIds/items"
+                }
+              }
+            },
+            "required": [
+              "name",
+              "currentState",
+              "impact",
+              "uncertainty",
+              "rationale",
+              "evidenceIds",
+              "assumptionIds"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 1,
+          "maxItems": 10
+        },
+        "interactionSummary": {
+          "$ref": "#/definitions/ScenarioLab_drivers_output/properties/drivers/items/properties/name"
+        }
+      },
+      "required": [
+        "drivers",
+        "interactionSummary"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://scenariolab.local/schema/stages/drivers-2.0.0.json",
+  "$comment": "Structured output contract for the drivers planning stage."
+}

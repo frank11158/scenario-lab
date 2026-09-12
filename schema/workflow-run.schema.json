@@ -1,0 +1,331 @@
+{
+  "$ref": "#/definitions/ScenarioLabWorkflowRun",
+  "definitions": {
+    "ScenarioLabWorkflowRun": {
+      "type": "object",
+      "properties": {
+        "schemaVersion": {
+          "type": "string",
+          "const": "2.0.0"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "studyId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "pending",
+            "running",
+            "completed",
+            "failed",
+            "cancelled",
+            "stale"
+          ]
+        },
+        "config": {
+          "type": "object",
+          "properties": {
+            "scenarioCount": {
+              "type": "integer",
+              "minimum": 2,
+              "maximum": 6,
+              "default": 3
+            },
+            "maxRetries": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 3,
+              "default": 2
+            },
+            "promptSetVersion": {
+              "type": "string",
+              "minLength": 1,
+              "default": "m2.1"
+            }
+          },
+          "additionalProperties": false
+        },
+        "cancelRequested": {
+          "type": "boolean"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "completedAt": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "totalUsage": {
+          "type": "object",
+          "properties": {
+            "inputTokens": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "outputTokens": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "totalTokens": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "costUsd": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "minimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "inputTokens",
+            "outputTokens",
+            "totalTokens",
+            "costUsd"
+          ],
+          "additionalProperties": false
+        },
+        "stages": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "runId": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "stage": {
+                "type": "string",
+                "enum": [
+                  "framing",
+                  "evidence",
+                  "drivers",
+                  "scenarios",
+                  "consequences",
+                  "strategy_evaluation",
+                  "synthesis"
+                ]
+              },
+              "ordinal": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "pending",
+                  "running",
+                  "completed",
+                  "failed",
+                  "cancelled",
+                  "stale"
+                ]
+              },
+              "attemptCount": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "inputJson": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "inputHash": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "outputJson": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "promptVersion": {
+                "type": "string",
+                "minLength": 1
+              },
+              "provider": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "model": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "modelVersion": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "responseId": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "usage": {
+                "anyOf": [
+                  {
+                    "$ref": "#/definitions/ScenarioLabWorkflowRun/properties/totalUsage"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "error": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "code": {
+                        "type": "string",
+                        "enum": [
+                          "invalid_output",
+                          "model_error",
+                          "cancelled",
+                          "invalid_stage_input",
+                          "apply_error"
+                        ]
+                      },
+                      "message": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "retryable": {
+                        "type": "boolean"
+                      },
+                      "issues": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "path": {
+                              "type": "string"
+                            },
+                            "message": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "path",
+                            "message"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "default": []
+                      }
+                    },
+                    "required": [
+                      "code",
+                      "message",
+                      "retryable"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "startedAt": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "completedAt": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "runId",
+              "stage",
+              "ordinal",
+              "status",
+              "attemptCount",
+              "inputJson",
+              "inputHash",
+              "outputJson",
+              "promptVersion",
+              "provider",
+              "model",
+              "modelVersion",
+              "responseId",
+              "usage",
+              "error",
+              "startedAt",
+              "completedAt"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "id",
+        "studyId",
+        "status",
+        "config",
+        "cancelRequested",
+        "createdAt",
+        "updatedAt",
+        "completedAt",
+        "totalUsage",
+        "stages"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://scenariolab.local/schema/workflow-run-2.0.0.json",
+  "$comment": "Persisted planning run with resumable stage checkpoints, metadata, usage, errors, and freshness state."
+}

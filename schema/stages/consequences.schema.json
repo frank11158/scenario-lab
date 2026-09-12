@@ -1,0 +1,86 @@
+{
+  "$ref": "#/definitions/ScenarioLab_consequences_output",
+  "definitions": {
+    "ScenarioLab_consequences_output": {
+      "type": "object",
+      "properties": {
+        "consequences": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "scenarioId": {
+                "type": "string",
+                "format": "uuid",
+                "errorMessage": {
+                  "format": "must be an opaque UUID"
+                }
+              },
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "direct",
+                  "second_order",
+                  "opportunity",
+                  "threat"
+                ]
+              },
+              "statement": {
+                "type": "string",
+                "minLength": 1
+              },
+              "driverIds": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/ScenarioLab_consequences_output/properties/consequences/items/properties/scenarioId"
+                }
+              },
+              "assumptionIds": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/ScenarioLab_consequences_output/properties/consequences/items/properties/scenarioId"
+                }
+              },
+              "evidenceIds": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/ScenarioLab_consequences_output/properties/consequences/items/properties/scenarioId"
+                }
+              }
+            },
+            "required": [
+              "scenarioId",
+              "kind",
+              "statement",
+              "driverIds",
+              "assumptionIds",
+              "evidenceIds"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "consistencyNotes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ScenarioLab_consequences_output/properties/consequences/items/properties/statement"
+          }
+        },
+        "omittedTailRisks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ScenarioLab_consequences_output/properties/consequences/items/properties/statement"
+          }
+        }
+      },
+      "required": [
+        "consequences",
+        "consistencyNotes",
+        "omittedTailRisks"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://scenariolab.local/schema/stages/consequences-2.0.0.json",
+  "$comment": "Structured output contract for the consequences planning stage."
+}
