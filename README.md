@@ -39,6 +39,7 @@ is available when you want to prepare the context yourself.
 | [M0 product baseline](product/m0-acceptance.md) | Approved scope, flows, fixtures, rubric, and architecture decisions |
 | [M1 foundation](product/m1-acceptance.md) | Versioned model, validation, SQLite persistence, revisions, imports, and exports |
 | [M2 pipeline](product/m2-acceptance.md) | Resumable validated generation, model adapter, retries, usage, and staleness |
+| [M3 workbench](product/m3-acceptance.md) | Complete browser workflow, local API, history, model-failure recovery, and exports |
 
 Each study produces a readable decision brief, scenario comparison, strategy
 assessment, and action plan, with an evidence register and update history.
@@ -50,13 +51,14 @@ Codex uses the root `AGENTS.md` as project guidance. This follows the
 [official project-instruction convention](https://learn.chatgpt.com/docs/agent-configuration/agents-md).
 Start a fresh task in this folder to pick up the instructions reliably.
 
-This version is a document-based planning workspace operated through Codex.
-It requires no application server, package installation, or separate API key.
-It does not include an autonomous forecasting engine or scheduled monitoring.
-Research depends on the sources and tools available in a particular task.
+ScenarioLab can still be used as a document-based Codex workspace with no
+application server. It now also includes a local browser workbench. AI generation
+is enabled when `OPENAI_API_KEY` and `OPENAI_MODEL` are supplied; manual creation,
+editing, persistence, revision history, and export remain available without them.
+It does not include autonomous forecasting, live research, or scheduled monitoring.
 
-Product development has completed Milestones 0 through 2. The reviewable baselines
-live in [`product/`](product/); the decision workbench begins with M3.
+Product development has completed Milestones 0 through 3. The reviewable baselines
+live in [`product/`](product/); M3 is the complete local-first MVP.
 
 Scenarios explore plausible futures; they are not predictions. Probabilities
 are optional. A study should help you identify choices that hold up across futures
@@ -69,10 +71,24 @@ Requires Node.js 18.14 or newer.
 ```sh
 npm ci
 npm run check
+npm run test:e2e:install # once per machine
+npm run test:e2e
 ```
+
+Start the workbench in manual mode:
+
+```sh
+npm start
+```
+
+Then open `http://127.0.0.1:4174`. To enable generation, set
+`OPENAI_API_KEY` and `OPENAI_MODEL` before starting. By default, study data is
+stored in `scenario-lab.sqlite`; set `SCENARIOLAB_DB_PATH` to choose another
+local path.
 
 The public TypeScript entry point is `src/index.ts`. It exports the versioned Zod
 study contracts, relationship validation, study-draft factory, reference-case
 importer, deterministic Markdown/JSON exporters, SQLite database and repository,
 revision service, and resumable planning pipeline. Generated JSON Schemas are in
-[`schema/`](schema/).
+[`schema/`](schema/). The React/Vite client is in [`web/`](web/) and the local
+HTTP application boundary is in [`src/server/`](src/server/).

@@ -15,7 +15,7 @@ multi-user hosted architecture.
 | Application surface | Local-first browser workbench, desktop-width first | Fastest inspectable UI for tables, comparison, and export | Local setup materially blocks pilots or offline packaging is required |
 | Structure | TypeScript modular monolith in one repository | Shared types and low operational complexity | Independent scaling or release cadence is demonstrated |
 | UI | React + Vite | Simple client build and component ecosystem | Framework blocks accessibility, packaging, or required server rendering |
-| API/application | Node.js + Fastify | Explicit local API boundary and lightweight modular server | Deployment surface or team expertise changes |
+| API/application | Node.js built-in HTTP server | Explicit local API boundary with no additional runtime server dependency | Routing or deployment needs exceed the small local API surface |
 | Contracts | TypeScript + Zod; JSON Schema emitted for exports | Runtime validation and reusable typed contracts | Cross-language clients become a near-term requirement |
 | Persistence | SQLite + Drizzle ORM; append-only accepted revisions | Portable local database, transactions, inspectable migrations | Concurrent multi-user writes or hosted isolation is required |
 | Model integration | Provider-neutral adapter; first adapter uses OpenAI Responses API structured output | One supported path while preventing provider logic from entering domain code | Quality, residency, cost, or availability requires another provider |
@@ -31,7 +31,7 @@ responsibility boundaries, not version numbers that would become stale.
 ```text
 React workbench
       |
-Fastify application API
+Node HTTP application API
       |
 Study domain + validation + revision service
       |                 |
@@ -122,8 +122,18 @@ the SQLite backup API once implemented). Export is not a substitute for backup.
 
 ## M1 handoff constraints
 
-M1 must keep the domain package independent of React, Fastify, Drizzle, and the
+M1 must keep the domain package independent of React, the HTTP server, Drizzle, and the
 model adapter; use stable opaque IDs; represent unknown explicitly; validate all
 relationships; preserve JSON round trips; and import all four `fixture_version`
 `0.1` files. M1 may refine the fixture import mapping but must not weaken their
 expected properties or synthetic labels.
+
+## M3 implementation note
+
+M3 retained the API boundary but replaced the proposed Fastify implementation
+with the Node.js built-in HTTP server. During implementation, the Fastify plugin
+set compatible with the adopted Node 18 baseline introduced high-severity audit
+findings, while the patched major versions required a newer runtime. The MVP has
+a deliberately small, loopback-only route set, so the native server met the same
+boundary and security-header requirements with less dependency risk. Reconsider a
+framework when routing, middleware, or hosted deployment complexity justifies it.

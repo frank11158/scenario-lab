@@ -1,6 +1,9 @@
 node_modules/
 dist/
 coverage/
+web-dist/
+playwright-report/
+test-results/
 *.sqlite
 *.sqlite-shm
 *.sqlite-wal

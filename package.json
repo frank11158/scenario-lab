@@ -1,6 +1,6 @@
 {
   "name": "scenario-lab",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "description": "Structured scenario-planning study foundation",
   "type": "module",
@@ -8,23 +8,37 @@
     "node": ">=18.14"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json",
-    "check": "npm run typecheck && npm test && npm run fixtures:validate && npm run schema:check",
-    "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "npm run build && node --test dist/tests/*.test.js",
-    "fixtures:validate": "npm run build && node dist/scripts/validate-fixtures.js",
-    "schema:generate": "npm run build && node dist/scripts/generate-schema.js --write",
-    "schema:check": "npm run build && node dist/scripts/generate-schema.js"
+    "build": "npm run build:lib && npm run build:web",
+    "build:lib": "tsc -p tsconfig.json",
+    "build:web": "vite build",
+    "check": "npm run typecheck && npm test && npm run fixtures:validate && npm run schema:check && npm run build:web",
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.web.json --noEmit",
+    "test": "npm run build:lib && node --test dist/tests/*.test.js",
+    "fixtures:validate": "npm run build:lib && node dist/scripts/validate-fixtures.js",
+    "schema:generate": "npm run build:lib && node dist/scripts/generate-schema.js --write",
+    "schema:check": "npm run build:lib && node dist/scripts/generate-schema.js",
+    "start": "npm run build && node dist/src/server/main.js",
+    "dev:server": "npm run build:lib && node dist/src/server/main.js",
+    "dev:web": "vite",
+    "test:e2e": "playwright test",
+    "test:e2e:install": "playwright install chromium"
   },
   "dependencies": {
     "better-sqlite3": "9.6.0",
     "drizzle-orm": "0.45.2",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "zod": "3.23.8",
     "zod-to-json-schema": "3.23.5"
   },
   "devDependencies": {
+    "@playwright/test": "^1.58.2",
     "@types/better-sqlite3": "7.6.11",
     "@types/node": "18.19.39",
-    "typescript": "5.5.3"
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "typescript": "5.5.3",
+    "vite": "^6.4.3"
   }
 }

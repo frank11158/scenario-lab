@@ -1,19 +1,12 @@
 import type { PipelineRun, StageName } from "./types.js";
 import { STAGE_ORDER } from "./types.js";
+import { z } from "zod";
 
-export type StudyChange =
-  | "problem"
-  | "objective"
-  | "constraint"
-  | "evidence"
-  | "assumption"
-  | "driver"
-  | "scenario"
-  | "consequence"
-  | "strategy"
-  | "evaluation"
-  | "indicator"
-  | "action";
+export const StudyChangeSchema = z.enum([
+  "problem", "objective", "constraint", "evidence", "assumption", "driver",
+  "scenario", "consequence", "strategy", "evaluation", "indicator", "action"
+]);
+export type StudyChange = z.infer<typeof StudyChangeSchema>;
 
 export const CHANGE_INVALIDATES_FROM: Record<StudyChange, StageName> = {
   problem: "framing",

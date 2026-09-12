@@ -1,6 +1,6 @@
 # ScenarioLab development roadmap
 
-Status: Active roadmap; M0–M2 completed 2026-09-11, M3 not started.
+Status: Active roadmap; M0–M3 completed 2026-09-11.
 
 ## Product goal
 
@@ -24,8 +24,8 @@ they are not commitments or requirements already agreed in that conversation.
 At roadmap approval, the repository contained project instructions, templates,
 and a fictional worked example but no implementation. M1 now provides the
 versioned domain model, validation, SQLite persistence, revisions, reference-case
-import, exports, and a resumable model-backed planning pipeline. There is still no
-application interface or monitoring service.
+import, exports, a resumable model-backed planning pipeline, and local decision
+workbench. There is no live research, quantitative simulation, or monitoring service.
 
 Relevant foundations:
 
@@ -76,7 +76,7 @@ Autonomous execution of recommended decisions is outside this roadmap.
 | M0 — Product definition | **Complete (2026-09-11):** shared scope and reference cases | Existing workspace | Reviewable requirements and evaluation rubric |
 | M1 — Structured study foundation | **Complete (2026-09-11):** persisted, validated study model | M0 | Reliable save, load, version, and export |
 | M2 — AI planning pipeline | **Complete (2026-09-11):** resumable generation of a complete draft | M1 | Validated stages with traceable inputs and failures |
-| M3 — Decision workbench | User can inspect, change, and compare choices | M2 | Complete end-to-end MVP |
+| M3 — Decision workbench | **Complete (2026-09-11):** user can inspect, change, and compare choices | M2 | Complete end-to-end MVP |
 | M4 — Evidence and research | Source-backed baseline and refreshable claims | M3 | Claims traceable to inspected sources |
 | M5 — Quantitative analysis | Reproducible sensitivity and simulation | M3; M4 for live inputs | Verified calculations and visible limitations |
 | M6 — Indicators and updates | Studies adapt to meaningful new evidence | M4 | Reliable, user-enabled monitoring and revision history |
@@ -155,6 +155,9 @@ duplicating revisions. Missing evidence stays visibly missing. Generated content
 does not silently replace user edits, and stale results cannot appear current.
 
 ## M3 — Deliver the decision workbench and MVP
+
+**Status: Complete (2026-09-11).** Acceptance evidence is recorded in
+[`product/m3-acceptance.md`](product/m3-acceptance.md).
 
 Deliverables:
 
@@ -312,7 +315,7 @@ of analytical quality.
 - [x] Record stack, storage, provider, deployment, and cost-budget decisions.
 - [x] Implement M1 persistence and export before connecting generation stages.
 - [x] Implement M2 staged generation against the M1 contracts.
-- [ ] Implement the M3 decision workbench against the M2 pipeline.
+- [x] Implement the M3 decision workbench against the M2 pipeline.
 
 This roadmap authorizes no deployment, scheduled monitor, or external action;
 it records the proposed development sequence. Revisit scope after the first

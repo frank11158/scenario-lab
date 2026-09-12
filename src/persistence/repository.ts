@@ -9,9 +9,12 @@ export type StoredRevision = {
   snapshot: Study;
 };
 
+export type StudySummary = Pick<Study, "id" | "title" | "status" | "mode" | "synthetic" | "createdAt" | "updatedAt">;
+
 export interface StudyRepository {
   saveDraft(study: Study): void;
   loadDraft(studyId: string): Study | undefined;
+  listStudies(): StudySummary[];
   saveAcceptedRevision(study: Study, revision: StudyRevision): void;
   listRevisions(studyId: string): StudyRevision[];
   loadRevision(studyId: string, revisionId: string): StoredRevision | undefined;
@@ -61,6 +64,23 @@ export class SqliteStudyRepository implements StudyRepository {
     const row = this.db.select({ draftJson: studiesTable.draftJson })
       .from(studiesTable).where(eq(studiesTable.id, studyId)).get();
     return row ? validateStudyDraft(JSON.parse(row.draftJson)) : undefined;
+  }
+
+  listStudies(): StudySummary[] {
+    return this.db.select({ draftJson: studiesTable.draftJson }).from(studiesTable)
+      .orderBy(asc(studiesTable.title)).all()
+      .map((row) => {
+        const study = validateStudyDraft(JSON.parse(row.draftJson));
+        return {
+          id: study.id,
+          title: study.title,
+          status: study.status,
+          mode: study.mode,
+          synthetic: study.synthetic,
+          createdAt: study.createdAt,
+          updatedAt: study.updatedAt
+        };
+      });
   }
 
   saveAcceptedRevision(study: Study, revision: StudyRevision): void {
